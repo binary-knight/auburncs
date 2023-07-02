@@ -36,3 +36,70 @@
     transform: rotate(360deg);
   }
 }
+
+/* Additional Styles */
+
+/* Header */
+header {
+  background-color: #f5f5f5;
+  padding: 10px;
+}
+
+.banner {
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  margin: 0 10px;
+}
+
+/* Content */
+.content {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+}
+
+.left-column {
+  flex-basis: 60%;
+  margin-right: 20px;
+}
+
+.right-column {
+  flex-basis: 40%;
+}
+
+/* Blog News Box */
+.blog-news-box {
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+.blog-entry {
+  margin-bottom: 20px;
+}
+
+/* Class Detail Links */
+.class-detail-links {
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+.class-detail-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.class-detail-links li {
+  margin-bottom: 10px;
+}
+

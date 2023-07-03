@@ -1,0 +1,22 @@
+.class-list-container {
+    background-color: #f4f4f4;
+    padding: 20px;
+  }
+  
+  .class-item {
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .class-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 10px;
+  }
+  

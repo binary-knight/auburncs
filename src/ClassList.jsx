@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BsPencil, BsX } from 'react-icons/bs';
+import './ClassList.css';
 
 const roundToNearestTenth = (value) => {
   return Math.round(value * 10) / 10;
@@ -169,7 +170,7 @@ const ClassList = () => {
   };
 
   return (
-    <div>
+    <div className="class-list-container">
       <h2>Class List</h2>
       <ul>
         {classes.map(cls => (
@@ -181,15 +182,17 @@ const ClassList = () => {
                 onCancel={() => setEditingClassId(null)}
               />
             ) : (
-              <>
+              <div className="class-item">
                 {renderClassStats(cls)}
-                <BsPencil onClick={() => handleEdit(cls.id)} />
-                <button onClick={() => handleDeleteClass(cls.id)}>
-                  <BsX className="delete-icon" />
-                </button>
-                <button onClick={() => handleVote(cls.id)}>Vote</button> {/* Vote button */}
-                <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-              </>
+                <div className="button-container">
+                  <BsPencil onClick={() => handleEdit(cls.id)} />
+                  <button onClick={() => handleDeleteClass(cls.id)}>
+                    <BsX className="delete-icon" />
+                  </button>
+                  <button onClick={() => handleVote(cls.id)}>Vote</button>
+                  <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                </div>
+              </div>
             )}
           </li>
         ))}

@@ -1,20 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './Home';
-import ClassDetail from './ClassDetail';
-import Admin from './Admin';
+import Banner from './Banner'; // Path to Banner.js
+import Header from './Header'; // Path to Header.js
+import ClassList from './ClassList'; // Path to ClassList.js
 
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/classes/:id" element={<ClassDetail />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
-    </Router>
-  );
-};
+function App() {
+    return (
+        <div className="App">
+            <Banner />
+            <Header />
+            <ClassList />
+        </div>
+    );
+}
 
 export default App;
 

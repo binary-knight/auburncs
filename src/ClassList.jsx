@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import Modal from './Modal';
 import { BsPencil, BsX } from 'react-icons/bs';
 import './ClassList.css';
 
 const roundToNearestTenth = (value) => {
   return Math.round(value * 10) / 10;
 };
+
 
 const ClassList = () => {
   const [classes, setClasses] = useState([]);
@@ -15,6 +17,9 @@ const ClassList = () => {
     quality: '',
     hpw: ''
   });
+
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
     fetch('https://dev.auburnonlinecs.com:3000/classes')
@@ -33,6 +38,21 @@ const ClassList = () => {
         {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}
       </>
     );
+  };
+
+  const handleViewDetails = async (classId) => {
+    try {
+      const response = await fetch(`https://dev.auburnonlinecs.com:3000/classes/${classId}/details`);
+      if (response.ok) {
+        const classDetails = await response.json();
+        setSelectedClass(classDetails);
+        setModalIsOpen(true);
+      } else {
+        console.error('Error:', response.status);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const handleVote = (classId) => {
@@ -191,12 +211,28 @@ const ClassList = () => {
                   </button>
                   <button onClick={() => handleVote(cls.id)}>Vote</button>
                   <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                  <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
                 </div>
               </div>
             )}
           </li>
         ))}
       </ul>
+
+          {/* Modal component */}
+    {selectedClass && (
+      <div className="modal">
+        <div className="modal-content">
+          <h3>{selectedClass.name}</h3>
+          <p>Quality: {selectedClass.quality}</p>
+          <p>HPW: {selectedClass.hpw}</p>
+          <p>Difficulty: {selectedClass.difficulty}</p>
+          {/* Other class details */}
+          <button onClick={() => setSelectedClass(null)}>Close</button>
+        </div>
+      </div>
+    )}
+    
       <h2>Add Class</h2>
       <form onSubmit={handleAddClass}>
         <input
@@ -260,6 +296,7 @@ const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
     </form>
   );
 };
+
 
 export default ClassList;
 

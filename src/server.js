@@ -244,6 +244,32 @@ app.put('/classes/:id/clear-stats', async (req, res) => {
   }
 });
 
+app.get('/classes/:id/details', async (req, res) => {
+  const classId = req.params.id;
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Fetch the class details from the database based on the classId
+    const [results] = await pool.query(
+      'SELECT id, name, quality, hpw, difficulty, description, syllabus FROM classes WHERE id = ?',
+      [classId]
+    );
+
+    if (results.length > 0) {
+      const classDetails = results[0];
+      res.json(classDetails);
+    } else {
+      res.status(404).json({ error: 'Class not found' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+
 // Create an HTTPS server
 const server = https.createServer(options, app);
 

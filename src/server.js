@@ -117,12 +117,14 @@ app.put('/classes/:id', async (req, res) => {
 
     // Perform the necessary logic to update the class in the database
     const [result] = await pool.query(
-      'UPDATE classes SET name = ?, difficulty = ?, quality = ?, hpw = ? WHERE id = ?',
+      'UPDATE classes SET name = ?, difficulty = ?, quality = ?, hpw = ?, description = ?, syllabus = ? WHERE id = ?',
       [
         updatedClassData.name,
         updatedClassData.difficulty,
         updatedClassData.quality,
         updatedClassData.hpw,
+        updatedClassData.description,
+        updatedClassData.syllabus,
         classId
       ]
     );
@@ -142,7 +144,7 @@ app.put('/classes/:id', async (req, res) => {
 
 // Route for adding a new class
 app.post('/classes', async (req, res) => {
-  const { name, difficulty, quality, hpw } = req.body;
+  const { name, difficulty, quality, hpw, description, syllabus } = req.body;
 
   try {
     // Get the MySQL connection pool
@@ -150,8 +152,8 @@ app.post('/classes', async (req, res) => {
 
     // Perform the necessary logic to add the class to the database
     const [result] = await pool.query(
-      'INSERT INTO classes (name, difficulty, quality, hpw) VALUES (?, ?, ?, ?)',
-      [name, difficulty, quality, hpw]
+      'INSERT INTO classes (name, difficulty, quality, hpw, description, syllabus) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, difficulty, quality, hpw, description, syllabus]
     );
 
     if (result.affectedRows > 0) {

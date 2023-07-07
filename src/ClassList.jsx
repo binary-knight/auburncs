@@ -15,7 +15,9 @@ const ClassList = () => {
     name: '',
     difficulty: '',
     quality: '',
-    hpw: ''
+    hpw: '',
+    syllabus: "",
+    description: ""
   });
 
   const [selectedClass, setSelectedClass] = useState(null);
@@ -219,19 +221,14 @@ const ClassList = () => {
         ))}
       </ul>
 
-          {/* Modal component */}
-    {selectedClass && (
-      <div className="modal">
-        <div className="modal-content">
-          <h3>{selectedClass.name}</h3>
-          <p>Quality: {selectedClass.quality}</p>
-          <p>HPW: {selectedClass.hpw}</p>
-          <p>Difficulty: {selectedClass.difficulty}</p>
-          {/* Other class details */}
-          <button onClick={() => setSelectedClass(null)}>Close</button>
-        </div>
-      </div>
-    )}
+      {/* Modal component */}
+      {selectedClass && (
+        <Modal 
+          isOpen={!!selectedClass} 
+          onClose={() => setSelectedClass(null)} 
+          classDetails={selectedClass}
+        />
+      )}
     
       <h2>Add Class</h2>
       <form onSubmit={handleAddClass}>
@@ -263,6 +260,20 @@ const ClassList = () => {
           value={newClass.hpw}
           onChange={(e) => setNewClass({ ...newClass, hpw: e.target.value })}
         />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          value={newClass.description}
+          onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
+        />
+        <input
+          type="text"
+          name="syllabus"
+          placeholder="Syllabus"
+          value={newClass.syllabus}
+          onChange={(e) => setNewClass({ ...newClass, syllabus: e.target.value })}
+        />
         <button type="submit">Add</button>
       </form>
     </div>
@@ -270,7 +281,7 @@ const ClassList = () => {
 };
 
 const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
-  const [updatedClass, setUpdatedClass] = useState({ ...cls });
+  const [updatedClass, setUpdatedClass] = useState({ ...cls, syllabus: cls.syllabus, description: cls.description });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -291,6 +302,8 @@ const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
       <input type="number" name="difficulty" value={updatedClass.difficulty} onChange={handleChange} />
       <input type="number" name="quality" value={updatedClass.quality} onChange={handleChange} />
       <input type="number" name="hpw" value={updatedClass.hpw} onChange={handleChange} />
+      <input type="text" name="description" value={updatedClass.description} onChange={handleChange} />
+      <input type="text" name="syllabus" value={updatedClass.syllabus} onChange={handleChange} />
       <button type="submit">Save</button>
       <button type="button" onClick={onCancel}>Cancel</button>
     </form>

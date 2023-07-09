@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import Modal from './Modal';
 import { BsPencil, BsX } from 'react-icons/bs';
+import './ClassList.css';
 
 const roundToNearestTenth = (value) => {
   return Math.round(value * 10) / 10;
 };
 
-const ClassList = () => {
+
+const ClassList = ({ isAdmin }) => {
   const [classes, setClasses] = useState([]);
   const [editingClassId, setEditingClassId] = useState(null);
   const [newClass, setNewClass] = useState({
     name: '',
     difficulty: '',
     quality: '',
-    hpw: ''
+    hpw: '',
+    syllabus: "",
+    description: ""
   });
+
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
     fetch('https://dev.auburnonlinecs.com:3000/classes')
@@ -32,6 +40,21 @@ const ClassList = () => {
         {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}
       </>
     );
+  };
+
+  const handleViewDetails = async (classId) => {
+    try {
+      const response = await fetch(`https://dev.auburnonlinecs.com:3000/classes/${classId}/details`);
+      if (response.ok) {
+        const classDetails = await response.json();
+        setSelectedClass(classDetails);
+        setModalIsOpen(true);
+      } else {
+        console.error('Error:', response.status);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const handleVote = (classId) => {
@@ -169,7 +192,7 @@ const ClassList = () => {
   };
 
   return (
-    <div>
+    <div className="class-list-container">
       <h2>Class List</h2>
       <ul>
         {classes.map(cls => (
@@ -181,19 +204,36 @@ const ClassList = () => {
                 onCancel={() => setEditingClassId(null)}
               />
             ) : (
-              <>
-                {renderClassStats(cls)}
-                <BsPencil onClick={() => handleEdit(cls.id)} />
-                <button onClick={() => handleDeleteClass(cls.id)}>
-                  <BsX className="delete-icon" />
-                </button>
-                <button onClick={() => handleVote(cls.id)}>Vote</button> {/* Vote button */}
-                <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+              <div className="class-item">
+              {renderClassStats(cls)}
+              <div className="button-container">
+                {isAdmin && (
+                  <>
+                    <button onClick={() => handleDeleteClass(cls.id)}>
+                      <BsX className="delete-icon" />
+                    </button>
+                    <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                    <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                  </>
+                )}
+                <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+                <button onClick={() => handleVote(cls.id)}>Vote</button>
+              </div>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+
+      {/* Modal component */}
+      {selectedClass && (
+        <Modal 
+          isOpen={!!selectedClass} 
+          onClose={() => setSelectedClass(null)} 
+          classDetails={selectedClass}
+        />
+      )}
+    
       <h2>Add Class</h2>
       <form onSubmit={handleAddClass}>
         <input
@@ -224,6 +264,20 @@ const ClassList = () => {
           value={newClass.hpw}
           onChange={(e) => setNewClass({ ...newClass, hpw: e.target.value })}
         />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          value={newClass.description}
+          onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
+        />
+        <input
+          type="text"
+          name="syllabus"
+          placeholder="Syllabus"
+          value={newClass.syllabus}
+          onChange={(e) => setNewClass({ ...newClass, syllabus: e.target.value })}
+        />
         <button type="submit">Add</button>
       </form>
     </div>
@@ -231,7 +285,7 @@ const ClassList = () => {
 };
 
 const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
-  const [updatedClass, setUpdatedClass] = useState({ ...cls });
+  const [updatedClass, setUpdatedClass] = useState({ ...cls, syllabus: cls.syllabus, description: cls.description });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -252,11 +306,14 @@ const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
       <input type="number" name="difficulty" value={updatedClass.difficulty} onChange={handleChange} />
       <input type="number" name="quality" value={updatedClass.quality} onChange={handleChange} />
       <input type="number" name="hpw" value={updatedClass.hpw} onChange={handleChange} />
+      <input type="text" name="description" value={updatedClass.description} onChange={handleChange} />
+      <input type="text" name="syllabus" value={updatedClass.syllabus} onChange={handleChange} />
       <button type="submit">Save</button>
       <button type="button" onClick={onCancel}>Cancel</button>
     </form>
   );
 };
+
 
 export default ClassList;
 

@@ -118,11 +118,35 @@ const createConnectionPool = async () => {
   }
 };
 
-// SSL/TLS certificate options
-const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/privkey.pem'), // Path to your private key file
-  cert: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/fullchain.pem') // Path to your certificate file
+// Retrieve the parameter value from Systems Manager
+const getSSLCertificateOptions = async () => {
+  const parameterNames = ['/auburncs/sslPrivateKeyPath', '/auburncs/sslCertificatePath'];
+
+  const params = {
+    Names: parameterNames,
+    WithDecryption: true
+  };
+
+  try {
+    const response = await ssm.getParameters(params).promise();
+    const privateKeyPath = response.Parameters.find(p => p.Name === parameterNames[0]).Value;
+    const certificatePath = response.Parameters.find(p => p.Name === parameterNames[1]).Value;
+
+    return {
+      key: fs.readFileSync(privateKeyPath),
+      cert: fs.readFileSync(certificatePath)
+    };
+  } catch (error) {
+    console.error('Error retrieving SSL certificate options:', error);
+    throw error;
+  }
 };
+
+// SSL/TLS certificate options
+//const options = {
+  //key: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/privkey.pem'), 
+  //cert: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/fullchain.pem') 
+//};
 
 // Route for getting all classes
 app.get('/classes', async (req, res) => {
@@ -480,11 +504,21 @@ app.get('*', (req, res) => {
 });
 
 // Create an HTTPS server
-const server = https.createServer(options, app);
+const createServer = async () => {
+  try {
+    const options = await getSSLCertificateOptions();
+    const server = https.createServer(options, app);
 
-// Start the server
-server.listen(port, () => {
-  console.log(`Server listening at https://localhost:${port}`);
+    // Start the server
+    server.listen(port, () => {
+      console.log(`Server listening at https://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error('Error creating server:', error);
+  }
+};
+
+// Call the createServer function
+createServer().catch(error => {
+  console.error('Failed to start server:', error);
 });
-
-

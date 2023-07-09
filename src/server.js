@@ -23,17 +23,50 @@ app.use(express.json()); // Parse JSON request bodies
 
 const ssm = new AWS.SSM();
 
-const secretKey = crypto.randomBytes(32).toString('hex');
+//const secretKey = crypto.randomBytes(32).toString('hex');
+
+// Retrieve the parameter value from Systems Manager
+const getSecretKey = async () => {
+  const parameterName = '/auburncs/jwtSecretKey';
+
+  const params = {
+    Name: parameterName,
+    WithDecryption: true
+  };
+
+  try {
+    const response = await ssm.getParameter(params).promise();
+    return response.Parameter.Value;
+  } catch (error) {
+    console.error('Error retrieving secret key:', error);
+    throw error;
+  }
+};
+
+let secretKey;
+
+async function initialize() {
+  try {
+    secretKey = await getSecretKey();
+  } catch (error) {
+    console.error('Error initializing secret key:', error);
+  }
+}
+
+initialize();
+
 
 const extractToken = (req) => {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-    return req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(' ')[1];
+    console.log('Verifying token:', token, 'with secret key:', secretKey);
+    return token;
   }
   return null;
 };
 
 app.use(
-  expressJwt({ secret: secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
+  expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
     const excludedPaths = ['/login', '/register', '/classes', '/user'];
     if (req.path.startsWith('/classes/') && req.method === 'GET') {
       // Exclude the path for retrieving class details
@@ -298,10 +331,31 @@ app.get('/classes/:id/details', async (req, res) => {
   }
 });
 
+// Function to fetch the username from the database based on the userId
+const fetchUsernameFromDatabase = async (userId) => {
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Replace this with your actual database query logic
+    const [results] = await pool.query('SELECT username FROM users WHERE id = ?', [userId]);
+    if (results.length > 0) {
+      return results[0].username;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching username from database:', error);
+    throw error;
+  }
+};
+
+
 app.get('/user', async (req, res) => {
   const token = extractToken(req);
 
   if (!token) {
+    console.log('No token found in request');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -309,37 +363,30 @@ app.get('/user', async (req, res) => {
     const decodedToken = jwt.verify(token, secretKey);
     const userId = decodedToken.userId;
 
-    // Fetch the username from the database based on the userId
-    const username = await fetchUsernameFromDatabase(userId);
-
-    if (username) {
-      res.json({ username });
-    } else {
-      res.status(404).json({ error: 'Username not found' });
+    if (!userId) {
+      console.log('No userId found in decoded token:', decodedToken);
+      return res.status(400).json({ error: 'Bad request' });
     }
-  } catch (error) {
-    console.error('Error fetching username:', error);
-    res.status(500).json({ error: 'An error occurred', details: error.message });
+
+    // Fetch the username from the database based on the userId
+    try {
+      const username = await fetchUsernameFromDatabase(userId);
+
+      if (username) {
+        res.json({ username });
+      } else {
+        console.log('No username found for userId:', userId);
+        res.status(404).json({ error: 'Username not found' });
+      }
+    } catch (dbError) {
+      console.error('Error fetching username from database:', dbError);
+      res.status(500).json({ error: 'Database error', details: dbError.message });
+    }
+  } catch (jwtError) {
+    console.error('Error verifying JWT token:', jwtError);
+    res.status(500).json({ error: 'JWT error', details: jwtError.message });
   }
 });
-
-// Function to fetch the username from the database based on the userId
-const fetchUsernameFromDatabase = (userId) => {
-  return new Promise((resolve, reject) => {
-    // Replace this with your actual database query logic
-    pool.query('SELECT username FROM users WHERE id = ?', [userId], (error, results) => {
-      if (error) {
-        reject(error);
-      } else if (results.length > 0) {
-        resolve(results[0].username);
-      } else {
-        resolve(null);
-      }
-    });
-  });
-};
-
-
 
 // Route for user registration
 app.post('/register', async (req, res) => {
@@ -410,13 +457,13 @@ app.post('/login', async (req, res) => {
     }
 
     // Check if the user is an admin
-    const isAdmin = user.isAdmin === 1; // Assuming you have an "isAdmin" column in the "users" table
+    const isAdmin = user.isAdmin === 1;
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: user.id, isAdmin }, 'secret-key');
+    const token = jwt.sign({ userId: user.id, isAdmin }, secretKey);
 
     // Send the token and isAdmin flag as a response
-    res.json({ token, isAdmin });
+    res.json({ token, isAdmin, username });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'An error occurred' });

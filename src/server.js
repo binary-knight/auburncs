@@ -5,17 +5,80 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const morgan = require('morgan');
 const AWS = require('aws-sdk');
-
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const app = express();
 const port = 3000;
+const path = require('path');
 
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
 
 // Use morgan middleware for logging
 app.use(morgan('combined')); // 'combined' is a pre-defined log format
+app.use(cors());
+app.use(express.json()); // Parse JSON request bodies
 
 const ssm = new AWS.SSM();
+
+//const secretKey = crypto.randomBytes(32).toString('hex');
+
+// Retrieve the parameter value from Systems Manager
+const getSecretKey = async () => {
+  const parameterName = '/auburncs/jwtSecretKey';
+
+  const params = {
+    Name: parameterName,
+    WithDecryption: true
+  };
+
+  try {
+    const response = await ssm.getParameter(params).promise();
+    return response.Parameter.Value;
+  } catch (error) {
+    console.error('Error retrieving secret key:', error);
+    throw error;
+  }
+};
+
+let secretKey;
+
+async function initialize() {
+  try {
+    secretKey = await getSecretKey();
+  } catch (error) {
+    console.error('Error initializing secret key:', error);
+  }
+}
+
+initialize();
+
+
+const extractToken = (req) => {
+  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    const token = req.headers.authorization.split(' ')[1];
+    console.log('Verifying token:', token, 'with secret key:', secretKey);
+    return token;
+  }
+  return null;
+};
+
+app.use(
+  expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
+    const excludedPaths = ['/login', '/register', '/classes', '/user'];
+    if (req.path.startsWith('/classes/') && req.method === 'GET') {
+      // Exclude the path for retrieving class details
+      excludedPaths.push(req.path);
+    }
+    if (req.path.startsWith('/classes/') && req.path.endsWith('/vote') && req.method === 'POST') {
+      // Exclude the path for voting on a class without authentication
+      return true;
+    }
+    return excludedPaths.includes(req.path);
+  })
+);
 
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
@@ -55,14 +118,29 @@ const createConnectionPool = async () => {
   }
 };
 
-// SSL/TLS certificate options
-const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/privkey.pem'), // Path to your private key file
-  cert: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/fullchain.pem') // Path to your certificate file
-};
+// Retrieve the parameter value from Systems Manager
+const getSSLCertificateOptions = async () => {
+  const parameterNames = ['/auburncs/sslPrivateKeyPath', '/auburncs/sslCertificatePath'];
 
-app.use(cors());
-app.use(express.json()); // Parse JSON request bodies
+  const params = {
+    Names: parameterNames,
+    WithDecryption: true
+  };
+
+  try {
+    const response = await ssm.getParameters(params).promise();
+    const privateKeyPath = response.Parameters.find(p => p.Name === parameterNames[0]).Value;
+    const certificatePath = response.Parameters.find(p => p.Name === parameterNames[1]).Value;
+
+    return {
+      key: fs.readFileSync(privateKeyPath),
+      cert: fs.readFileSync(certificatePath)
+    };
+  } catch (error) {
+    console.error('Error retrieving SSL certificate options:', error);
+    throw error;
+  }
+};
 
 // Route for getting all classes
 app.get('/classes', async (req, res) => {
@@ -271,13 +349,170 @@ app.get('/classes/:id/details', async (req, res) => {
   }
 });
 
+// Function to fetch the username from the database based on the userId
+const fetchUsernameFromDatabase = async (userId) => {
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
 
-// Create an HTTPS server
-const server = https.createServer(options, app);
+    // Replace this with your actual database query logic
+    const [results] = await pool.query('SELECT username FROM users WHERE id = ?', [userId]);
+    if (results.length > 0) {
+      return results[0].username;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching username from database:', error);
+    throw error;
+  }
+};
 
-// Start the server
-server.listen(port, () => {
-  console.log(`Server listening at https://localhost:${port}`);
+
+app.get('/user', async (req, res) => {
+  const token = extractToken(req);
+
+  if (!token) {
+    console.log('No token found in request');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, secretKey);
+    const userId = decodedToken.userId;
+
+    if (!userId) {
+      console.log('No userId found in decoded token:', decodedToken);
+      return res.status(400).json({ error: 'Bad request' });
+    }
+
+    // Fetch the username from the database based on the userId
+    try {
+      const username = await fetchUsernameFromDatabase(userId);
+
+      if (username) {
+        res.json({ username });
+      } else {
+        console.log('No username found for userId:', userId);
+        res.status(404).json({ error: 'Username not found' });
+      }
+    } catch (dbError) {
+      console.error('Error fetching username from database:', dbError);
+      res.status(500).json({ error: 'Database error', details: dbError.message });
+    }
+  } catch (jwtError) {
+    console.error('Error verifying JWT token:', jwtError);
+    res.status(500).json({ error: 'JWT error', details: jwtError.message });
+  }
 });
 
+// Route for user registration
+app.post('/register', async (req, res) => {
+  const { username, password, email, realname } = req.body;
 
+  // Validate the user data
+  if (!username || !password || !email || !realname) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Check if the username or email already exists
+    const [users] = await pool.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email]);
+    if (users.length > 0) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Add the new user to the database
+    const [result] = await pool.query(
+      'INSERT INTO users (username, password, email, realname) VALUES (?, ?, ?, ?)',
+      [username, hashedPassword, email, realname]
+    );
+
+    if (result.affectedRows > 0) {
+      // User registered successfully
+      res.sendStatus(201); // Send a 201 Created response
+    } else {
+      // No rows affected
+      console.error('Failed to register user:', result);
+      res.status(500).json({ error: 'Failed to register user' });
+    }
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+// Route for user login
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate the user data
+  if (!username || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Check if the username exists in the database
+    const [users] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+    if (users.length === 0) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Compare the provided password with the hashed password stored in the database
+    const user = users[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Check if the user is an admin
+    const isAdmin = user.isAdmin === 1;
+
+    // Generate a JWT token
+    const token = jwt.sign({ userId: user.id, isAdmin }, secretKey);
+
+    // Send the token and isAdmin flag as a response
+    res.json({ token, isAdmin, username });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '/var/www/html/auburncs-dev')));
+
+// Catch-all route handler
+app.get('*', (req, res) => {
+  // Respond with the index.html file
+  res.sendFile(path.join(__dirname, '/var/www/html/auburncs-dev', 'index.html'));
+});
+
+// Create an HTTPS server
+const createServer = async () => {
+  try {
+    const options = await getSSLCertificateOptions();
+    const server = https.createServer(options, app);
+
+    // Start the server
+    server.listen(port, () => {
+      console.log(`Server listening at https://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error('Error creating server:', error);
+  }
+};
+
+// Call the createServer function
+createServer().catch(error => {
+  console.error('Failed to start server:', error);
+});

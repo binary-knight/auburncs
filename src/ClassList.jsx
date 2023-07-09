@@ -8,7 +8,7 @@ const roundToNearestTenth = (value) => {
 };
 
 
-const ClassList = () => {
+const ClassList = ({ isAdmin }) => {
   const [classes, setClasses] = useState([]);
   const [editingClassId, setEditingClassId] = useState(null);
   const [newClass, setNewClass] = useState({
@@ -205,21 +205,25 @@ const ClassList = () => {
               />
             ) : (
               <div className="class-item">
-                {renderClassStats(cls)}
-                <div className="button-container">
-                  <BsPencil onClick={() => handleEdit(cls.id)} />
-                  <button onClick={() => handleDeleteClass(cls.id)}>
-                    <BsX className="delete-icon" />
-                  </button>
-                  <button onClick={() => handleVote(cls.id)}>Vote</button>
-                  <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-                  <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
-                </div>
+              {renderClassStats(cls)}
+              <div className="button-container">
+                {isAdmin && (
+                  <>
+                    <button onClick={() => handleDeleteClass(cls.id)}>
+                      <BsX className="delete-icon" />
+                    </button>
+                    <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                    <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                  </>
+                )}
+                <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+                <button onClick={() => handleVote(cls.id)}>Vote</button>
               </div>
-            )}
-          </li>
-        ))}
-      </ul>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
 
       {/* Modal component */}
       {selectedClass && (

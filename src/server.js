@@ -142,12 +142,6 @@ const getSSLCertificateOptions = async () => {
   }
 };
 
-// SSL/TLS certificate options
-//const options = {
-  //key: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/privkey.pem'), 
-  //cert: fs.readFileSync('/etc/letsencrypt/live/auburnonlinecs.com-0001/fullchain.pem') 
-//};
-
 // Route for getting all classes
 app.get('/classes', async (req, res) => {
   console.log('Attempting to retrieve classes...');

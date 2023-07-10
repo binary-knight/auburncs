@@ -205,26 +205,26 @@ const ClassList = ({ isAdmin }) => {
               />
             ) : (
               <div className="class-item">
-              {renderClassStats(cls)}
-              <div className="button-container">
-                {isAdmin && (
-                  <>
-                    <button onClick={() => handleDeleteClass(cls.id)}>
-                      <BsX className="delete-icon" />
-                    </button>
-                    <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
-                    <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-                  </>
-                )}
-                <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
-                <button onClick={() => handleVote(cls.id)}>Vote</button>
+                {renderClassStats(cls)}
+                <div className="button-container">
+                  {isAdmin && (
+                    <>
+                      <button onClick={() => handleDeleteClass(cls.id)}>
+                        <BsX className="delete-icon" />
+                      </button>
+                      <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                      <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                    </>
+                  )}
+                  <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+                  <button onClick={() => handleVote(cls.id)}>Vote</button>
+                </div>
               </div>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
-
+            )}
+          </li>
+        ))}
+      </ul>
+  
       {/* Modal component */}
       {selectedClass && (
         <Modal 
@@ -233,53 +233,57 @@ const ClassList = ({ isAdmin }) => {
           classDetails={selectedClass}
         />
       )}
-    
-      <h2>Add Class</h2>
-      <form onSubmit={handleAddClass}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Class Name"
-          value={newClass.name}
-          onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
-        />
-        <input
-          type="number"
-          name="difficulty"
-          placeholder="Difficulty"
-          value={newClass.difficulty}
-          onChange={(e) => setNewClass({ ...newClass, difficulty: e.target.value })}
-        />
-        <input
-          type="number"
-          name="quality"
-          placeholder="Quality"
-          value={newClass.quality}
-          onChange={(e) => setNewClass({ ...newClass, quality: e.target.value })}
-        />
-        <input
-          type="number"
-          name="hpw"
-          placeholder="HPW"
-          value={newClass.hpw}
-          onChange={(e) => setNewClass({ ...newClass, hpw: e.target.value })}
-        />
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={newClass.description}
-          onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
-        />
-        <input
-          type="text"
-          name="syllabus"
-          placeholder="Syllabus"
-          value={newClass.syllabus}
-          onChange={(e) => setNewClass({ ...newClass, syllabus: e.target.value })}
-        />
-        <button type="submit">Add</button>
-      </form>
+  
+      {isAdmin && (
+        <>
+          <h2>Add Class</h2>
+          <form onSubmit={handleAddClass}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Class Name"
+              value={newClass.name}
+              onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+            />
+            <input
+              type="number"
+              name="difficulty"
+              placeholder="Difficulty"
+              value={newClass.difficulty}
+              onChange={(e) => setNewClass({ ...newClass, difficulty: e.target.value })}
+            />
+            <input
+              type="number"
+              name="quality"
+              placeholder="Quality"
+              value={newClass.quality}
+              onChange={(e) => setNewClass({ ...newClass, quality: e.target.value })}
+            />
+            <input
+              type="number"
+              name="hpw"
+              placeholder="HPW"
+              value={newClass.hpw}
+              onChange={(e) => setNewClass({ ...newClass, hpw: e.target.value })}
+            />
+            <input
+              type="text"
+              name="description"
+              placeholder="Description"
+              value={newClass.description}
+              onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
+            />
+            <input
+              type="text"
+              name="syllabus"
+              placeholder="Syllabus"
+              value={newClass.syllabus}
+              onChange={(e) => setNewClass({ ...newClass, syllabus: e.target.value })}
+            />
+            <button type="submit">Add</button>
+          </form>
+        </>
+      )}
     </div>
   );
 };

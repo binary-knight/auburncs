@@ -51,25 +51,27 @@ const LoginPage = ({ setIsOpen, setLoggedIn, setAdmin }) => {
   };
 
   return (
-    <div className="popup">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
-      {errorMessage && <p>{errorMessage}</p>}
-      <button type="button" onClick={() => setIsOpen(false)}>Close</button>
+    <div className="modal">
+      <div className="modal-content">
+        <span className="close" onClick={() => setIsOpen(false)}>&times;</span>
+        <h2>Login</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="submit">Login</button>
+        </form>
+        {errorMessage && <p>{errorMessage}</p>}
+      </div>
     </div>
   );
 };

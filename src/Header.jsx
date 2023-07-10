@@ -28,10 +28,11 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
       <div className="header-top">
         <ul>
           <li><a href="https://www.reddit.com/r/AuburnOnlineCS/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Resource 2</a></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Resource 3</a></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Resource 4</a></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Resource 5</a></li>
+          <li><a href="https://discord.gg/ucX86j7jt6" target="_blank" rel="noopener noreferrer">Join Our Discord!</a></li>
+          <li><a href="https://eng.auburn.edu/csse/academics/online/online-undergraduate-program.html" target="_blank" rel="noopener noreferrer">Official AU Site</a></li>
+          <li><a href="#" target="_blank" rel="noopener noreferrer">FAQ</a></li>
+          <li><a href="#" target="_blank" rel="noopener noreferrer">Software for Students</a></li>
+          <li><a href="#" target="_blank" rel="noopener noreferrer">Outside Resources</a></li>
         </ul>
       </div>
       <div className="header-bottom">
@@ -40,7 +41,11 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
         )}
         {loggedIn && (
           <>
-            <p>Welcome, {username}!</p>
+            {isAdmin ? (
+              <p>Welcome, {username}. You are currently logged in as an admin.</p>
+            ) : (
+              <p>Welcome, {username}!</p>
+            )}
             <button type="button" onClick={handleLogout}>Logout</button>
           </>
         )}
@@ -74,7 +79,3 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
 };
 
 export default Header;
-
-
-
-

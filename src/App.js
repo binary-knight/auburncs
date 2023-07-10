@@ -6,6 +6,7 @@ import Header from './Header';
 import ClassList from './ClassList';
 import Register from './Register';
 import LoginPage from './LoginPage';
+import UserManagement from './UserManagement';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -54,8 +55,9 @@ function App() {
           handleCloseLoginModal={handleCloseLoginModal}
         />
         <Routes>
-          <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} />} />
+          <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/user-management" element={<UserManagement />} />
         </Routes>
       </div>
       {loginModalIsOpen && (

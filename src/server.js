@@ -80,6 +80,8 @@ app.use(
   })
 );
 
+
+
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
   const parameterName = '/auburncs/database_credentials';
@@ -368,6 +370,98 @@ const fetchUsernameFromDatabase = async (userId) => {
   }
 };
 
+// Function to fetch all users from the database
+const fetchAllUsersFromDatabase = async () => {
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Query to fetch all users
+    const [results] = await pool.query('SELECT * FROM users');
+    return results;
+  } catch (error) {
+    console.error('Error fetching users from database:', error);
+    throw error;
+  }
+};
+
+app.get('/users', async (req, res) => {
+  // Fetch all users from the database
+  try {
+    const users = await fetchAllUsersFromDatabase();
+
+    if (users) {
+      res.json({ users });
+    } else {
+      console.log('No users found');
+      res.status(404).json({ error: 'No users found' });
+    }
+  } catch (dbError) {
+    console.error('Error fetching users from database:', dbError);
+    res.status(500).json({ error: 'Database error', details: dbError.message });
+  }
+});
+
+app.put('/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  const updatedUser = req.body;
+
+  try {
+    const [results] = await pool.query('UPDATE users SET username = ?, isadmin = ?, email = ?, realName = ? WHERE id = ?', [updatedUser.username, updatedUser.isadmin, updatedUser.email, updatedUser.realName, userId]);
+    res.json(results);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Database error', details: error.message });
+  }
+});
+
+// Route for deleting a user
+app.delete('/users/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Perform the necessary logic to delete the user from the database
+    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+
+    if (result.affectedRows > 0) {
+      // User deleted successfully
+      res.sendStatus(204); // Send a 204 No Content response
+    } else {
+      // User not found or no rows affected
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+app.put('/users/:id/promote', async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Check if the user exists in the database
+    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update the user's isAdmin property to true
+    await pool.query('UPDATE users SET isAdmin = true WHERE id = ?', [userId]);
+
+    // Send a response indicating successful promotion
+    res.json({ message: 'User promoted successfully' });
+  } catch (error) {
+    console.error('Error promoting user:', error);
+    res.status(500).json({ error: 'Database error', details: error.message });
+  }
+});
 
 app.get('/user', async (req, res) => {
   const token = extractToken(req);

@@ -47,6 +47,7 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
               <p>Welcome, {username}!</p>
             )}
             <button type="button" onClick={handleLogout}>Logout</button>
+            {isAdmin && <Link to="/user-management">User Management</Link>}
           </>
         )}
         {!loggedIn && (

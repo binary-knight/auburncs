@@ -38,16 +38,6 @@ nav li {
   flex-basis: 40%;
 }
 
-/* Blog News Box */
-.blog-news-box {
-  background-color: #f9f9f9;
-  padding: 20px;
-}
-
-.blog-entry {
-  margin-bottom: 20px;
-}
-
 /* Class Detail Links */
 .class-detail-links {
   background-color: #f9f9f9;

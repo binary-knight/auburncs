@@ -12,18 +12,26 @@ const crypto = require('crypto');
 const app = express();
 const port = 3000;
 const path = require('path');
+const sslRedirect = require('express-sslify');
 
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
 
 // Use morgan middleware for logging
 app.use(morgan('combined')); // 'combined' is a pre-defined log format
-app.use(cors());
+
+// Force HTTP requests to redirect to HTTPS
+app.use(sslRedirect.HTTPS({ trustProtoHeader: true }));
+
+app.use(cors({
+  origin: 'https://dev.auburnonlinecs.com', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Authorization', 'Content-Type'],
+}));
+
 app.use(express.json()); // Parse JSON request bodies
 
 const ssm = new AWS.SSM();
-
-//const secretKey = crypto.randomBytes(32).toString('hex');
 
 // Retrieve the parameter value from Systems Manager
 const getSecretKey = async () => {
@@ -59,7 +67,6 @@ initialize();
 const extractToken = (req) => {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     const token = req.headers.authorization.split(' ')[1];
-    console.log('Verifying token:', token, 'with secret key:', secretKey);
     return token;
   }
   return null;
@@ -67,20 +74,52 @@ const extractToken = (req) => {
 
 app.use(
   expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
-    const excludedPaths = ['/login', '/register', '/classes', '/user'];
+    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', ];
+    console.log(`Received ${req.method} request for ${req.path}`);
+    if (req.method === 'OPTIONS') {
+      console.log('Skipping JWT check for OPTIONS request');
+      return true;
+    }
+
     if (req.path.startsWith('/classes/') && req.method === 'GET') {
-      // Exclude the path for retrieving class details
+      console.log('Skipping JWT check for GET class details request');
       excludedPaths.push(req.path);
     }
     if (req.path.startsWith('/classes/') && req.path.endsWith('/vote') && req.method === 'POST') {
-      // Exclude the path for voting on a class without authentication
+      console.log('Skipping JWT check for POST class vote request');
       return true;
     }
-    return excludedPaths.includes(req.path);
+    if (req.path.startsWith('/users/') && req.method === 'DELETE') {
+      console.log('Skipping JWT check for DELETE user request');
+      return true;
+    }
+    if (req.method === 'DELETE' && req.path.startsWith('/classes/')) {
+      const classId = req.params.id;
+      console.log(`Skipping JWT check for DELETE class request with ID ${classId}`);
+      return true;
+    }
+    if (req.method === 'PUT' && req.path.startsWith('/classes/')) {
+      const classId = req.params.id;
+      console.log(`Skipping JWT check for PUT class request with ID ${classId}`);
+      return true;
+    }
+    if (req.method === 'PUT' && req.path.startsWith('/users/') && req.path.endsWith('/promote')) {
+      const userId = req.params.id;
+      console.log(`Skipping JWT check for PUT user promotion request with ID ${userId}`);
+      return true;
+    }
+    if (req.method === 'PUT' && req.path.startsWith('/users/')) {
+      const userId = req.params.id;
+      console.log(`Skipping JWT check for PUT user request with ID ${userId}`);
+      return true;
+    }
+    const excluded = excludedPaths.includes(req.path);
+    if (excluded) {
+      console.log('Skipping JWT check for excluded path');
+    }
+    return excluded;
   })
 );
-
-
 
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
@@ -163,6 +202,8 @@ app.get('/classes', async (req, res) => {
 
 // Route for deleting a class
 app.delete('/classes/:id', async (req, res) => {
+  console.log(`Received DELETE request for class ID ${req.params.id}`);
+
   const classId = req.params.id;
 
   try {
@@ -174,9 +215,11 @@ app.delete('/classes/:id', async (req, res) => {
 
     if (result.affectedRows > 0) {
       // Class deleted successfully
+      console.log(`Class ID ${classId} deleted successfully`);
       res.sendStatus(204); // Send a 204 No Content response
     } else {
       // Class not found or no rows affected
+      console.log(`No class found with ID ${classId}`);
       res.status(404).json({ error: 'Class not found' });
     }
   } catch (error) {
@@ -407,6 +450,7 @@ app.put('/users/:id', async (req, res) => {
   const updatedUser = req.body;
 
   try {
+    
     const [results] = await pool.query('UPDATE users SET username = ?, isadmin = ?, email = ?, realName = ? WHERE id = ?', [updatedUser.username, updatedUser.isadmin, updatedUser.email, updatedUser.realName, userId]);
     res.json(results);
   } catch (error) {
@@ -423,7 +467,6 @@ app.delete('/users/:id', async (req, res) => {
     // Get the MySQL connection pool
     const pool = await createConnectionPool();
 
-    // Perform the necessary logic to delete the user from the database
     const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
 
     if (result.affectedRows > 0) {

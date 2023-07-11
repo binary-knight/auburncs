@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
-import { BsPencil, BsX } from 'react-icons/bs';
+import axios from 'axios';
 import './ClassList.css';
 
 const roundToNearestTenth = (value) => {
@@ -8,7 +8,7 @@ const roundToNearestTenth = (value) => {
 };
 
 
-const ClassList = ({ isAdmin }) => {
+const ClassList = ({ isAdmin, token }) => {
   const [classes, setClasses] = useState([]);
   const [editingClassId, setEditingClassId] = useState(null);
   const [newClass, setNewClass] = useState({
@@ -89,8 +89,10 @@ const ClassList = ({ isAdmin }) => {
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
     if (confirmClearStats) {
-      fetch(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {
-        method: 'PUT',
+      axios.put(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {
+        headers: {
+          'Authoization': `Bearer ${token}`
+        }
       })
         .then(response => {
           if (response.ok) {
@@ -105,23 +107,26 @@ const ClassList = ({ isAdmin }) => {
     }
   };
 
-  const handleDeleteClass = (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this class?');
+  const handleDeleteClass = (id, token) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
     if (confirmDelete) {
-      fetch(`https://dev.auburnonlinecs.com:3000/classes/${id}`, {
-        method: 'DELETE'
+      axios.delete(`https://dev.auburnonlinecs.com:3000/classes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
-        .then(response => {
-          if (response.ok) {
-            // Class deleted successfully
-            setClasses(prevClasses => prevClasses.filter(cls => cls.id !== id));
-          } else {
-            console.error('Error:', response.status);
-          }
-        })
-        .catch(error => console.error('Error:', error));
+      .then(response => {
+        // Class deleted successfully
+        setClasses(prevClasses => prevClasses.filter(cls => cls.id !== id));
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     }
   };
+  
+  
+  
 
   const handleEdit = (classId) => {
     setEditingClassId(classId);
@@ -132,18 +137,19 @@ const ClassList = ({ isAdmin }) => {
     fetch(`https://dev.auburnonlinecs.com:3000/classes/${updatedClass.id}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(updatedClass)
     })
       .then(response => response.json())
       .then(data => {
-        // Handle the response as needed (e.g., show a success message)
+        
         console.log('Class updated successfully:', data);
-
+  
         // Clear the editing state
         setEditingClassId(null);
-
+  
         // Fetch the updated class list
         fetchClassList();
       })
@@ -152,37 +158,42 @@ const ClassList = ({ isAdmin }) => {
         console.error('Error updating class:', error);
       });
   };
+  
 
   const handleAddClass = () => {
     // Make an API call to add the new class to the database
     fetch('https://dev.auburnonlinecs.com:3000/classes', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(newClass)
     })
       .then(response => response.json())
       .then(data => {
-        // Handle the response as needed (e.g., show a success message)
+        
         console.log('Class added successfully:', data);
-
+  
         // Clear the new class form
         setNewClass({
           name: '',
           difficulty: '',
           quality: '',
-          hpw: ''
+          hpw: '',
+          syllabus: '',
+          description: ''
         });
-
+  
         // Fetch the updated class list
         fetchClassList();
       })
       .catch(error => {
-        // Handle the error (e.g., display an error message)
+        
         console.error('Error adding class:', error);
       });
   };
+  
 
   const fetchClassList = () => {
     fetch('https://dev.auburnonlinecs.com:3000/classes')
@@ -209,15 +220,13 @@ const ClassList = ({ isAdmin }) => {
                 <div className="button-container">
                   {isAdmin && (
                     <>
-                      <button onClick={() => handleDeleteClass(cls.id)}>
-                        <BsX className="delete-icon" />
-                      </button>
+                      <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
                       <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
                       <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
                     </>
                   )}
                   <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
-                  <button onClick={() => handleVote(cls.id)}>Vote</button>
+                  {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
                 </div>
               </div>
             )}

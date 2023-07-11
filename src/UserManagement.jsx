@@ -29,13 +29,16 @@ function UserManagement() {
   };
 
   const handleDeleteClick = async (user) => {
-    // Send a DELETE request to your API to delete the user
-    try {
-      await axios.delete(`https://dev.auburnonlinecs.com:3000/users/${user.id}`, config);
-      // If the request is successful, remove the user from the state
-      setUsers(users.filter(u => u.id !== user.id));
-    } catch (error) {
-      console.error('Error deleting user:', error);
+    // Display a confirmation popup before deleting the user
+    const confirmDelete = window.confirm(`Are you sure you want to delete user ${user.username}?`);
+    if (confirmDelete) {
+      try {
+        await axios.delete(`https://dev.auburnonlinecs.com:3000/users/${user.id}`);
+        // If the request is successful, remove the user from the state
+        setUsers(users.filter(u => u.id !== user.id));
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
     }
   };
 
@@ -44,7 +47,7 @@ function UserManagement() {
     user.isAdmin = true;
     // Send a PUT or PATCH request to your API to update the user
     try {
-      await axios.put(`https://dev.auburnonlinecs.com:3000/users/${user.id}`, user, config);
+      await axios.put(`https://dev.auburnonlinecs.com:3000/users/${user.id}/promote`, user, config);
       // If the request is successful, update the user in the state
       setUsers(users.map(u => u.id === user.id ? user : u));
     } catch (error) {
@@ -108,4 +111,5 @@ function UserManagement() {
 }
 
 export default UserManagement;
+
 

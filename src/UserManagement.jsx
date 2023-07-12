@@ -79,6 +79,7 @@ function UserManagement() {
             <p>Real Name: {user.realName}</p>
             <p>Email: {user.email}</p>
             <p>Admin: {user.isAdmin ? 'Yes' : 'No'}</p>
+            <p>Email Verified: {user.verified ? 'Yes' : 'No'}</p>
             <button onClick={() => handleEditClick(user)}>Edit</button>
             <button onClick={() => handleDeleteClick(user)}>Delete</button>
             <button onClick={() => handlePromoteClick(user)}>Promote to Admin</button>

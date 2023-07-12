@@ -13,6 +13,7 @@ const app = express();
 const port = 3000;
 const path = require('path');
 const sslRedirect = require('express-sslify');
+const nodemailer = require('nodemailer');
 
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
@@ -32,6 +33,48 @@ app.use(cors({
 app.use(express.json()); // Parse JSON request bodies
 
 const ssm = new AWS.SSM();
+
+// Retrieve the parameter value from Systems Manager
+const getEmailCredentials = async () => {
+  const parameterName = '/auburncs/email_credentials';
+
+  const params = {
+    Name: parameterName,
+    WithDecryption: true
+  };
+
+  try {
+    const response = await ssm.getParameter(params).promise();
+    return JSON.parse(response.Parameter.Value);
+  } catch (error) {
+    console.error('Error retrieving email credentials:', error);
+    throw error;
+  }
+};
+
+let transporter = null
+
+async function initializeEmailTransporter() {
+  try {
+    const emailCredentials = await getEmailCredentials();
+
+    transporter = nodemailer.createTransport({
+      service: emailCredentials.service,
+      auth: {
+        user: emailCredentials.user,
+        pass: emailCredentials.password
+      }
+    });
+
+    // Use the transporter for sending emails
+    // ...
+  } catch (error) {
+    console.error('Error initializing email transporter:', error);
+    throw error;
+  }
+}
+
+initializeEmailTransporter();
 
 // Retrieve the parameter value from Systems Manager
 const getSecretKey = async () => {
@@ -74,7 +117,7 @@ const extractToken = (req) => {
 
 app.use(
   expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
-    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', ];
+    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email'];
     console.log(`Received ${req.method} request for ${req.path}`);
     if (req.method === 'OPTIONS') {
       console.log('Skipping JWT check for OPTIONS request');
@@ -109,6 +152,11 @@ app.use(
       return true;
     }
     if (req.method === 'PUT' && req.path.startsWith('/users/')) {
+      const userId = req.params.id;
+      console.log(`Skipping JWT check for PUT user request with ID ${userId}`);
+      return true;
+    }
+    if (req.method === 'GET' && req.path.startsWith('/verify-email')) {
       const userId = req.params.id;
       console.log(`Skipping JWT check for PUT user request with ID ${userId}`);
       return true;
@@ -552,6 +600,11 @@ app.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  // Check if the email is an auburn.edu email
+  if (!email.endsWith('@auburn.edu')) {
+    return res.status(400).json({ error: 'Only auburn.edu emails are allowed' });
+  }
+
   try {
     // Get the MySQL connection pool
     const pool = await createConnectionPool();
@@ -562,28 +615,102 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
+    // Generate a unique verification token for the user
+    const token = crypto.randomBytes(20).toString('hex');
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Add the new user to the database
+    // Add the new user to the database with the verification token
     const [result] = await pool.query(
-      'INSERT INTO users (username, password, email, realname) VALUES (?, ?, ?, ?)',
-      [username, hashedPassword, email, realname]
+      'INSERT INTO users (username, password, email, realname, token, verified) VALUES (?, ?, ?, ?, ?, ?)',
+      [username, hashedPassword, email, realname, token, false]
     );
 
-    if (result.affectedRows > 0) {
-      // User registered successfully
-      res.sendStatus(201); // Send a 201 Created response
-    } else {
-      // No rows affected
-      console.error('Failed to register user:', result);
-      res.status(500).json({ error: 'Failed to register user' });
-    }
+    // send verification email
+    const verificationLink = `https://dev.auburnonlinecs.com:3000/verify-email?token=${token}`;
+    const mailOptions = {
+      from: 'auburnonlinecs@gmail.com',
+      to: email,
+      subject: 'Please verify your email address',
+      text: `Click the following link to verify your email address: ${verificationLink}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending verification email:', error);
+        return res.status(500).json({ error: 'An error occurred during registration' });
+      } else {
+        console.log(`Email sent: ${info.response}`);
+        // Send a 200 status code and a success message
+        return res.status(200).json({ message: 'Registration successful' });
+      }
+    });
+
   } catch (error) {
     console.error('Error registering user:', error);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({ error: 'An error occurred during registration' });
   }
 });
+
+
+// Route for email verification
+app.get('/verify-email', async (req, res) => {
+  // Get the token from the URL parameters
+  const token = req.query.token;
+
+  try {
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
+
+    // Look up the user with the given token
+    const [users] = await pool.query('SELECT * FROM users WHERE token = ?', [token]);
+    if (users.length === 0) {
+      return res.status(400).send(`
+            <html>
+                <head>
+                    <title>Email Verification Error</title>
+                </head>
+                <body>
+                    <h1>Error verifying email</h1>
+                    <p>Invalid token. Please try again.</p>
+                </body>
+            </html>
+        `);
+    }
+
+    // Mark the user's email as verified
+    await pool.query('UPDATE users SET verified = true WHERE token = ?', [token]);
+
+    // Send a success HTML page
+    res.send(`
+        <html>
+            <head>
+                <title>Email Verification</title>
+            </head>
+            <body>
+                <h1>Email verified</h1>
+                <p>You may now log in.</p>
+            </body>
+        </html>
+    `);
+
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    res.status(500).send(`
+        <html>
+            <head>
+                <title>Email Verification Error</title>
+            </head>
+            <body>
+                <h1>Error verifying email</h1>
+                <p>An error occurred. Please try again later or contact JKnight on discord.</p>
+            </body>
+        </html>
+    `);
+  }
+});
+
 
 // Route for user login
 app.post('/login', async (req, res) => {
@@ -609,6 +736,11 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Check if the user's email is verified
+    if (!user.verified) {
+      return res.status(401).json({ error: 'Email not verified. Please check your email for verification link.' });
     }
 
     // Check if the user is an admin

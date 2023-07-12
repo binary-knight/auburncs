@@ -1,0 +1,46 @@
+.register-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .register-modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .register-modal h2 {
+    margin-top: 0;
+  }
+  
+  .register-modal form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .register-modal input {
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+  }
+  
+  .register-modal button {
+    margin-top: 10px;
+    padding: 8px 16px;
+  }
+  
+  .error-message {
+    color: red;
+  }
+  

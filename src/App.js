@@ -12,6 +12,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isAdmin, setAdmin] = useState(false);
   const [loginModalIsOpen, setLoginModalIsOpen] = useState(false);
+  const [registerModalIsOpen, setRegisterModalIsOpen] = useState(false);
   const [username, setUsername] = useState('');
 
   useEffect(() => {
@@ -43,6 +44,10 @@ function App() {
     setLoginModalIsOpen(false);
   };
 
+  const handleCloseRegisterModal = () => {
+    setRegisterModalIsOpen(false);
+  };
+
   return (
     <Router>
       <div className="App">
@@ -52,20 +57,25 @@ function App() {
           isAdmin={isAdmin}
           username={username}
           setLoginModalIsOpen={setLoginModalIsOpen}
+          setRegisterModalIsOpen={setRegisterModalIsOpen}
           handleCloseLoginModal={handleCloseLoginModal}
+          handleCloseRegisterModal={handleCloseRegisterModal} // Pass down this function to the Header component
         />
         <Routes>
           <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/user-management" element={<UserManagement />} />
         </Routes>
       </div>
       {loginModalIsOpen && (
         <LoginPage setIsOpen={setLoginModalIsOpen} setLoggedIn={setLoggedIn} setAdmin={setAdmin} />
       )}
+      {registerModalIsOpen && (
+        <Register modalIsOpen={registerModalIsOpen} setModalIsOpen={setRegisterModalIsOpen} />
+      )}
     </Router>
   );
 }
 
 export default App;
+
 

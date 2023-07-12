@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import './Header.css';
 
-const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPassword, setLoginModalIsOpen, handleCloseLoginModal }) => {
+const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPassword, setLoginModalIsOpen, setRegisterModalIsOpen, handleCloseLoginModal, handleCloseRegisterModal }) => {
   const [error, setError] = useState('');
 
   const handleLogout = () => {
@@ -16,6 +15,12 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
   const handleLoginClick = () => {
     if (!loggedIn) {
       setLoginModalIsOpen(true);
+    }
+  };
+
+  const handleRegisterClick = () => {
+    if (!loggedIn) {
+      setRegisterModalIsOpen(true);
     }
   };
 
@@ -51,7 +56,7 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
           </>
         )}
         {!loggedIn && (
-          <Link to="/register">Register</Link>
+          <button type="button" onClick={handleRegisterClick}>Register</button>
         )}
       </div>
       {loggedIn && (
@@ -80,3 +85,4 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
 };
 
 export default Header;
+

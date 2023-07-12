@@ -117,7 +117,7 @@ const extractToken = (req) => {
 
 app.use(
   expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
-    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email'];
+    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email', '/classes/:id/vote'];
     console.log(`Received ${req.method} request for ${req.path}`);
     if (req.method === 'OPTIONS') {
       console.log('Skipping JWT check for OPTIONS request');
@@ -346,48 +346,92 @@ app.post('/classes/:id/vote', async (req, res) => {
   const classId = req.params.id;
   const { difficulty, quality, hpw } = req.body;
 
+  const token = extractToken(req);
+
+  if (!token) {
+    console.log('No token found in request');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
+    const decodedToken = jwt.verify(token, secretKey);
+    const userId = decodedToken.userId;
 
-    // Perform the necessary logic to update the class statistics with the vote data
-    const [result] = await pool.query(
-      'SELECT difficulty, quality, hpw, votes FROM classes WHERE id = ?',
-      [classId]
-    );
+    if (!userId) {
+      console.log('No userId found in decoded token:', decodedToken);
+      return res.status(405).json({ error: 'Bad request' });
+    }
 
-    if (result.length > 0) {
-      const currentDifficulty = result[0].difficulty;
-      const currentQuality = result[0].quality;
-      const currentHPW = result[0].hpw;
-      const currentVotes = result[0].votes;
+    // Validate voting parameters
+    if (
+      !Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
+      !Number.isInteger(quality) || quality < 1 || quality > 5 ||
+      !Number.isInteger(hpw) || hpw < 1 || hpw > 40
+    ) {
+      return res.status(405).json({ error: 'Invalid voting parameters' });
+    }
 
-      // Calculate the new statistics based on the vote data and the existing values
-      const newDifficulty = (currentDifficulty * currentVotes + difficulty) / (currentVotes + 1);
-      const newQuality = (currentQuality * currentVotes + quality) / (currentVotes + 1);
-      const newHPW = (currentHPW * currentVotes + hpw) / (currentVotes + 1);
-      const newVotes = currentVotes + 1;
+    try {
+      // Get the MySQL connection pool
+      const pool = await createConnectionPool();
 
-      // Update the class statistics in the database
-      const [updateResult] = await pool.query(
-        'UPDATE classes SET difficulty = ?, quality = ?, hpw = ?, votes = ? WHERE id = ?',
-        [newDifficulty, newQuality, newHPW, newVotes, classId]
+      // Check if the user has already voted for this class
+      const [voteCheckResult] = await pool.query(
+        'SELECT * FROM user_votes WHERE user_id = ? AND class_id = ?',
+        [userId, classId]
       );
 
-      if (updateResult.affectedRows > 0) {
-        // Class statistics updated successfully
-        res.sendStatus(200); // Send a 200 OK response
+      //if (voteCheckResult.length > 0) {
+        // The user has already voted for this class
+      //  return res.status(400).json({ error: 'You have already voted for this class.' });
+      //}
+
+      // The user has not voted for this class, so proceed with the vote
+
+      // Perform the necessary logic to update the class statistics with the vote data
+      const [result] = await pool.query('SELECT difficulty, quality, hpw, votes FROM classes WHERE id = ?', [classId]);
+
+      if (result.length > 0) {
+        const currentDifficulty = result[0].difficulty;
+        const currentQuality = result[0].quality;
+        const currentHPW = result[0].hpw;
+        const currentVotes = result[0].votes;
+
+        // Calculate the new statistics based on the vote data and the existing values
+        const newDifficulty = (currentDifficulty * currentVotes + difficulty) / (currentVotes + 1);
+        const newQuality = (currentQuality * currentVotes + quality) / (currentVotes + 1);
+        const newHPW = (currentHPW * currentVotes + hpw) / (currentVotes + 1);
+        const newVotes = currentVotes + 1;
+
+        // Update the class statistics in the database
+        const [updateResult] = await pool.query(
+          'UPDATE classes SET difficulty = ?, quality = ?, hpw = ?, votes = ? WHERE id = ?',
+          [newDifficulty, newQuality, newHPW, newVotes, classId]
+        );
+
+        if (updateResult.affectedRows > 0) {
+          // Insert the vote into the user_votes table
+          if (userId) {
+            await pool.query('INSERT INTO user_votes(user_id, class_id) VALUES (?, ?)', [userId, classId]);
+          }
+
+          // Class statistics updated successfully
+          return res.sendStatus(200); // Send a 200 OK response
+        } else {
+          // Class not found or no rows affected
+          return res.status(404).json({ error: 'Class not found' });
+        }
       } else {
-        // Class not found or no rows affected
-        res.status(404).json({ error: 'Class not found' });
+        // Class not found
+        return res.status(404).json({ error: 'Class not found' });
       }
-    } else {
-      // Class not found
-      res.status(404).json({ error: 'Class not found' });
+    } catch (error) {
+      console.error('Error voting on class:', error);
+      return res.status(500).json({ error: 'An error occurred' });
     }
-  } catch (error) {
-    console.error('Error voting on class:', error);
-    res.status(500).json({ error: 'An error occurred' });
+  } catch (jwtError) {
+    console.error('Error verifying JWT token:', jwtError);
+    return res.status(500).json({ error: 'JWT error', details: jwtError.message });
   }
 });
 

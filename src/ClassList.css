@@ -42,6 +42,82 @@
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 999;
   }
+
+  .gradeA {
+    color: green;
+  }
+  
+  .gradeB {
+    color: rgb(69, 204, 7);
+  }
+  
+  .gradeC {
+    color: orange;
+  }
+  
+  .gradeD {
+    color: red;
+  }
+  
+  .gradeF {
+    color: red;
+  }
+  
+  .easy {
+    color: green;
+  }
+
+  .manageable {
+    color: green;
+  }
+  
+  .moderate {
+    color: orange;
+  }
+  
+  .hard {
+    color: red;
+  }
+
+  .challenging {
+    color: red;
+  }
+  
+  .no-data {
+    color: lightgray;
+  }
+  
+  .gradeA, .gradeB, .gradeC, .gradeD, .gradeF, .easy, .moderate, .hard, .manageable, .challenging, .no-data {
+    font-size: 1.5em;
+    text-align: right;
+  }
+  
+  .stats {
+    font-size: 1.5em;
+  }
+  
+  .class-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .class-stats > span, .class-stats > div {
+    background-color: white;
+    padding: 10px;
+    overflow-wrap: break-word;
+  }
+  
+  @media (min-width: 768px) {
+    .class-stats {
+      grid-template-columns: 700px auto auto; /* Adjust as needed */
+    }
+  }
+  
   
 
-  
+  .quality-label, .difficulty-label {
+    color: black;
+    font-size: 1.5em;
+  }

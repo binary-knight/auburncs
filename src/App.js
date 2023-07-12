@@ -14,6 +14,7 @@ function App() {
   const [loginModalIsOpen, setLoginModalIsOpen] = useState(false);
   const [registerModalIsOpen, setRegisterModalIsOpen] = useState(false);
   const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -22,18 +23,22 @@ function App() {
       setLoggedIn(true);
       setAdmin(isAdminUser);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // Fetch the username from the server
+  
+      // Fetch the username and userId from the server
       axios
         .get('https://dev.auburnonlinecs.com:3000/user')
         .then(response => {
+          console.log(response.data);
           setUsername(response.data.username);
+          setUserId(response.data.id); // Set the userId state
+          console.log(`userId: ${response.data.id}`);
         })
         .catch(error => {
-          console.log('Error fetching username:', error);
+          console.log('Error fetching username and userId:', error);
         });
     }
   }, []);
+  
 
   const handleCloseLoginModal = () => {
     localStorage.removeItem('token');
@@ -62,7 +67,7 @@ function App() {
           handleCloseRegisterModal={handleCloseRegisterModal} // Pass down this function to the Header component
         />
         <Routes>
-          <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} />} />
+          <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} userId={userId} />} /> // Pass the userId prop
           <Route path="/user-management" element={<UserManagement />} />
         </Routes>
       </div>
@@ -77,5 +82,6 @@ function App() {
 }
 
 export default App;
+
 
 

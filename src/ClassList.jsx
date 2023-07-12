@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import axios from 'axios';
 import './ClassList.css';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const roundToNearestTenth = (value) => {
   return Math.round(value * 10) / 10;
@@ -34,13 +36,27 @@ const ClassList = ({ isAdmin, token }) => {
     const roundedDifficulty = roundToNearestTenth(cls.difficulty);
     const roundedQuality = roundToNearestTenth(cls.quality);
     const roundedHPW = roundToNearestTenth(cls.hpw);
+  
+    const qualityGradeObject = getQualityGrade(cls.quality);
+    const difficultyScoreObject = getDifficultyScore(cls.difficulty, cls.hpw);
 
     return (
-      <>
-        {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}
-      </>
+      <div className="class-stats">
+        <span className="stats">
+          {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}
+        </span>
+        <div>
+          <span className="quality-label">Quality Grade: </span>
+          <span className={qualityGradeObject.class}>{qualityGradeObject.grade}</span>
+        </div>
+        <div>
+          <span className="difficulty-label">Difficulty Score: </span>
+          <span className={difficultyScoreObject.class}>{difficultyScoreObject.score}</span>
+        </div>
+      </div>
     );
   };
+  
 
   const handleViewDetails = async (classId) => {
     try {
@@ -57,41 +73,74 @@ const ClassList = ({ isAdmin, token }) => {
     }
   };
 
-  const handleVote = (classId) => {
-    const userDifficulty = prompt('Enter Difficulty:');
-    const userQuality = prompt('Enter Quality:');
-    const userHPW = prompt('Enter HPW:');
-
+  const handleVote = (classId, difficulty, quality, hpw) => {
+    let userDifficulty = parseInt(prompt('Enter Difficulty:'), 10);
+    while (userDifficulty !== '' && (isNaN(userDifficulty) || userDifficulty < 1 || userDifficulty > 5)) {
+      if (userDifficulty === null) {
+        return; // Exit the function if the user clicks "Cancel"
+      }
+      alert('Invalid input. Difficulty must be between 1-5.');
+      userDifficulty = parseInt(prompt('Enter Difficulty:'), 10);
+    }
+  
+    let userQuality = parseInt(prompt('Enter Quality:'), 10);
+    while (userQuality !== '' && (isNaN(userQuality) || userQuality < 1 || userQuality > 5)) {
+      if (userQuality === null) {
+        return; // Exit the function if the user clicks "Cancel"
+      }
+      alert('Invalid input. Quality must be between 1-5.');
+      userQuality = parseInt(prompt('Enter Quality:'), 10);
+    }
+  
+    let userHPW = parseInt(prompt('Enter HPW:'), 10);
+    while (userHPW !== '' && (isNaN(userHPW) || userHPW < 1 || userHPW >= 40)) {
+      if (userHPW === null) {
+        return; // Exit the function if the user clicks "Cancel"
+      }
+      alert('Invalid input. HPW must be less than 40.');
+      userHPW = parseInt(prompt('Enter HPW:'), 10);
+    }
+  
+    // Create the Axios configuration for the request
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+  
+    // Create the data object to send in the request
+    const data = {
+      difficulty: userDifficulty,
+      quality: userQuality,
+      hpw: userHPW,
+    };
+  
     // Make an API call to update the class with the user's vote
-    fetch(`https://dev.auburnonlinecs.com:3000/classes/${classId}/vote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        difficulty: parseInt(userDifficulty),
-        quality: parseInt(userQuality),
-        hpw: parseInt(userHPW)
+    axios
+      .post(`https://dev.auburnonlinecs.com:3000/classes/${classId}/vote`, data, config)
+      .then((response) => {
+        // Vote added successfully
+        toast.success('Review added successfully');
+        fetchClassList(); // Fetch the updated class list
       })
-    })
-      .then(response => {
-        if (response.ok) {
-          // Vote added successfully
-          console.log('Vote added successfully');
-          fetchClassList(); // Fetch the updated class list
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          // User has already voted for this class
+          toast.error('You have already reviewed this class.');
+        } else if (error.response && error.response.status === 405) {
+          // Invalid review parameters
+          toast.error('Invalid review parameters. Quality must be between 1-5, Difficulty must be between 1-5, and HPW must be less than 40.');
         } else {
-          console.error('Error:', response.status);
+          console.error('Error:', error);
         }
-      })
-      .catch(error => console.error('Error:', error));
+      });
   };
+  
 
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
     if (confirmClearStats) {
       axios.put(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {
         headers: {
-          'Authoization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
       })
         .then(response => {
@@ -106,6 +155,42 @@ const ClassList = ({ isAdmin, token }) => {
         .catch(error => console.error('Error:', error));
     }
   };
+
+  function getQualityGrade(quality) {
+    switch (Math.round(quality)) {
+      case 5: return { grade: 'A', class: 'gradeA' };
+      case 4: return { grade: 'B', class: 'gradeB' };
+      case 3: return { grade: 'C', class: 'gradeC' };
+      case 2: return { grade: 'D', class: 'gradeD' };
+      case 1: return { grade: 'F', class: 'gradeF' };
+      default: return { grade: 'No data', class: 'no-data' };
+    }
+  }
+  
+
+  function getDifficultyScore(difficulty, hpw) {
+    // Check if the difficulty or hpw is null, undefined, or 0
+    if (difficulty == null || difficulty === 0 || hpw == null || hpw === 0) {
+      return { score: 'No data yet', class: 'no-data' };
+    }
+  
+    const difficultyTier = difficulty < 2 ? 'low' : difficulty < 4 ? 'medium' : 'high';
+    const hpwTier = hpw < 10 ? 'low' : hpw < 20 ? 'medium' : 'high';
+  
+    if (difficultyTier === 'high' && hpwTier === 'high') {
+      return { score: 'Hard, extremely time consuming', class: 'hard' };
+    } else if (difficultyTier === 'low' && hpwTier === 'low') {
+      return { score: 'Easy, not time consuming', class: 'easy' };
+    } else if (difficultyTier === 'high' && hpwTier === 'low') {
+      return { score: 'Difficult, not time consuming', class: 'manageable' };
+    } else if (difficultyTier === 'low' && hpwTier === 'high') {
+      return { score: 'Easy, but time consuming', class: 'challenging' };
+    } else if (difficultyTier === 'medium' && hpwTier === 'medium') {
+      return { score: 'Moderate difficulty, moderate time commitment', class: 'moderate' };
+    } else {
+      return { score: 'Varied difficulty and time commitment', class: 'challenging' };
+    }
+  }
 
   const handleDeleteClass = (id, token) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
@@ -124,10 +209,7 @@ const ClassList = ({ isAdmin, token }) => {
       });
     }
   };
-  
-  
-  
-
+   
   const handleEdit = (classId) => {
     setEditingClassId(classId);
   };

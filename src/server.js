@@ -240,7 +240,7 @@ app.get('/classes', async (req, res) => {
     const pool = await createConnectionPool();
 
     // Execute the MySQL query to retrieve all classes
-    const [rows, fields] = await pool.query('SELECT * FROM classes');
+    const [rows, fields] = await pool.query('SELECT * FROM classes ORDER BY name ASC');
     res.json(rows);
   } catch (error) {
     console.error('Error retrieving classes:', error);

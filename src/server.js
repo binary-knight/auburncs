@@ -1,7 +1,7 @@
 const express = require('express');
 const https = require('https');
 const fs = require('fs');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
 const morgan = require('morgan');
 const AWS = require('aws-sdk');
@@ -187,20 +187,22 @@ const getDatabaseCredentials = async () => {
   }
 };
 
+let pool;
+
 // Create a MySQL connection pool
 const createConnectionPool = async () => {
   try {
     const credentials = await getDatabaseCredentials();
 
     // Create the MySQL connection pool
-    const pool = mysql.createPool({
+    pool = await mysql.createPool({
       host: credentials.host,
       user: credentials.user,
       password: credentials.password,
       database: credentials.database
     });
 
-    return pool.promise();
+    return pool;
   } catch (error) {
     console.error('Error creating database connection pool:', error);
     throw error;
@@ -236,9 +238,6 @@ app.get('/classes', async (req, res) => {
   console.log('Attempting to retrieve classes...');
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Execute the MySQL query to retrieve all classes
     const [rows, fields] = await pool.query('SELECT * FROM classes ORDER BY name ASC');
     res.json(rows);
@@ -255,9 +254,6 @@ app.delete('/classes/:id', async (req, res) => {
   const classId = req.params.id;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Perform the necessary logic to delete the class from the database
     const [result] = await pool.query('DELETE FROM classes WHERE id = ?', [classId]);
 
@@ -283,9 +279,6 @@ app.put('/classes/:id', async (req, res) => {
   const updatedClassData = req.body;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Perform the necessary logic to update the class in the database
     const [result] = await pool.query(
       'UPDATE classes SET name = ?, difficulty = ?, quality = ?, hpw = ?, description = ?, syllabus = ? WHERE id = ?',
@@ -317,10 +310,7 @@ app.put('/classes/:id', async (req, res) => {
 app.post('/classes', async (req, res) => {
   const { name, difficulty, quality, hpw, description, syllabus } = req.body;
 
-  try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
+  try {    
     // Perform the necessary logic to add the class to the database
     const [result] = await pool.query(
       'INSERT INTO classes (name, difficulty, quality, hpw, description, syllabus) VALUES (?, ?, ?, ?, ?, ?)',
@@ -372,9 +362,6 @@ app.post('/classes/:id/vote', async (req, res) => {
     }
 
     try {
-      // Get the MySQL connection pool
-      const pool = await createConnectionPool();
-
       // Check if the user has already voted for this class
       const [voteCheckResult] = await pool.query(
         'SELECT * FROM user_votes WHERE user_id = ? AND class_id = ?',
@@ -439,9 +426,6 @@ app.put('/classes/:id/clear-stats', async (req, res) => {
   const classId = req.params.id;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Perform the necessary logic to clear the stats of the class in the database
     const [result] = await pool.query(
       'UPDATE classes SET difficulty = 0, quality = 0, hpw = 0, votes = 0 WHERE id = ?',
@@ -465,9 +449,6 @@ app.get('/classes/:id/details', async (req, res) => {
   const classId = req.params.id;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Fetch the class details from the database based on the classId
     const [results] = await pool.query(
       'SELECT id, name, quality, hpw, difficulty, description, syllabus FROM classes WHERE id = ?',
@@ -489,9 +470,6 @@ app.get('/classes/:id/details', async (req, res) => {
 // Function to fetch the username from the database based on the userId
 const fetchUsernameFromDatabase = async (userId) => {
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Replace this with your actual database query logic
     const [results] = await pool.query('SELECT username FROM users WHERE id = ?', [userId]);
     if (results.length > 0) {
@@ -508,9 +486,6 @@ const fetchUsernameFromDatabase = async (userId) => {
 // Function to fetch all users from the database
 const fetchAllUsersFromDatabase = async () => {
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Query to fetch all users
     const [results] = await pool.query('SELECT * FROM users');
     return results;
@@ -541,11 +516,7 @@ app.put('/users/:id', async (req, res) => {
   const userId = req.params.id;
   const updatedUser = req.body;
 
-  try {
-
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-    
+  try {    
     const [results] = await pool.query('UPDATE users SET username = ?, isadmin = ?, email = ?, realName = ? WHERE id = ?', [updatedUser.username, updatedUser.isadmin, updatedUser.email, updatedUser.realName, userId]);
     res.json(results);
   } catch (error) {
@@ -559,9 +530,6 @@ app.delete('/users/:id', async (req, res) => {
   const userId = req.params.id;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
 
     if (result.affectedRows > 0) {
@@ -581,9 +549,6 @@ app.put('/users/:id/promote', async (req, res) => {
   const userId = req.params.id;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Check if the user exists in the database
     const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
     if (users.length === 0) {
@@ -653,9 +618,6 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Check if the username or email already exists
     const [users] = await pool.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, email]);
     if (users.length > 0) {
@@ -707,9 +669,6 @@ app.get('/verify-email', async (req, res) => {
   const token = req.query.token;
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Look up the user with the given token
     const [users] = await pool.query('SELECT * FROM users WHERE token = ?', [token]);
     if (users.length === 0) {
@@ -769,9 +728,6 @@ app.post('/login', async (req, res) => {
   }
 
   try {
-    // Get the MySQL connection pool
-    const pool = await createConnectionPool();
-
     // Check if the username exists in the database
     const [users] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
     if (users.length === 0) {
@@ -813,9 +769,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/var/www/html/auburncs-dev', 'index.html'));
 });
 
-// Create an HTTPS server
-const createServer = async () => {
+// Create an HTTPS server and start your server
+const startServer = async () => {
   try {
+    // Create the connection pool
+    await createConnectionPool();
+
     const options = await getSSLCertificateOptions();
     const server = https.createServer(options, app);
 
@@ -824,11 +783,11 @@ const createServer = async () => {
       console.log(`Server listening at https://localhost:${port}`);
     });
   } catch (error) {
-    console.error('Error creating server:', error);
+    console.error('Failed to start server:', error);
   }
 };
 
-// Call the createServer function
-createServer().catch(error => {
+// Call the startServer function
+startServer().catch(error => {
   console.error('Failed to start server:', error);
 });

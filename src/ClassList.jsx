@@ -203,9 +203,10 @@ const ClassList = ({ isAdmin, token }) => {
       .then(response => {
         // Class deleted successfully
         setClasses(prevClasses => prevClasses.filter(cls => cls.id !== id));
+        toast.success('Class deleted successfully', response.data);
       })
       .catch(error => {
-        console.error('Error:', error);
+        toast.error('Class Delete Error:', error);
       });
     }
   };
@@ -214,75 +215,72 @@ const ClassList = ({ isAdmin, token }) => {
     setEditingClassId(classId);
   };
 
-  const handleUpdate = (updatedClass) => {
-    // Make an API call to update the class with the updated data
-    fetch(`https://dev.auburnonlinecs.com:3000/classes/${updatedClass.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(updatedClass)
-    })
-      .then(response => response.json())
-      .then(data => {
-        
-        console.log('Class updated successfully:', data);
-  
+  const handleUpdate = async (updatedClass) => {
+    try {
+        const response = await axios.put(`https://dev.auburnonlinecs.com:3000/classes/${updatedClass.id}`, 
+            updatedClass, 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        toast.success('Class updated successfully:', response.data);
+
         // Clear the editing state
         setEditingClassId(null);
   
         // Fetch the updated class list
-        fetchClassList();
-      })
-      .catch(error => {
+        await fetchClassList();
+    } catch (error) {
         // Handle the error (e.g., display an error message)
-        console.error('Error updating class:', error);
+        toast.error('Error updating class:', error);
+    }
+};
+
+  const handleAddClass = async (event) => {
+    event.preventDefault();
+    
+    try {
+      // Make an API call to add the new class to the database
+      const response = await axios.post('https://dev.auburnonlinecs.com:3000/classes', newClass, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
       });
-  };
+    
+      toast.success('Class added successfully:', response.data);
+    
+      // Clear the new class form
+      setNewClass({
+        name: '',
+        difficulty: '',
+        quality: '',
+        hpw: '',
+        syllabus: '',
+        description: ''
+      });
+    
+      // Fetch the updated class list
+      await fetchClassList();
+    } catch (error) {
+      toast.error('Error adding class:', error);
+    }
+  }
   
 
-  const handleAddClass = () => {
-    // Make an API call to add the new class to the database
-    fetch('https://dev.auburnonlinecs.com:3000/classes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(newClass)
-    })
-      .then(response => response.json())
-      .then(data => {
-        
-        console.log('Class added successfully:', data);
-  
-        // Clear the new class form
-        setNewClass({
-          name: '',
-          difficulty: '',
-          quality: '',
-          hpw: '',
-          syllabus: '',
-          description: ''
-        });
-  
-        // Fetch the updated class list
-        fetchClassList();
-      })
-      .catch(error => {
-        
-        console.error('Error adding class:', error);
-      });
+  const fetchClassList = async () => {
+    try {
+      const response = await axios.get('https://dev.auburnonlinecs.com:3000/classes');
+      setClasses(response.data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
   
-
-  const fetchClassList = () => {
-    fetch('https://dev.auburnonlinecs.com:3000/classes')
-      .then(response => response.json())
-      .then(data => setClasses(data))
-      .catch(error => console.error('Error:', error));
-  };
 
   return (
     <div className="class-list-container">

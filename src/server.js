@@ -542,6 +542,9 @@ app.put('/users/:id', async (req, res) => {
   const updatedUser = req.body;
 
   try {
+
+    // Get the MySQL connection pool
+    const pool = await createConnectionPool();
     
     const [results] = await pool.query('UPDATE users SET username = ?, isadmin = ?, email = ?, realName = ? WHERE id = ?', [updatedUser.username, updatedUser.isadmin, updatedUser.email, updatedUser.realName, userId]);
     res.json(results);

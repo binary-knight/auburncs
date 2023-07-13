@@ -138,23 +138,25 @@ const ClassList = ({ isAdmin, token }) => {
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
     if (confirmClearStats) {
-      axios.put(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {
+      axios.put(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
         .then(response => {
-          if (response.ok) {
+          if (response.status === 200) {
             // Stats cleared successfully
+            toast.success('Class stats reset successfully.');
             // Fetch the updated class list
             fetchClassList();
           } else {
-            console.error('Error:', response.status);
+            toast.error('Error:', response.status);
           }
         })
         .catch(error => console.error('Error:', error));
     }
   };
+  
 
   function getQualityGrade(quality) {
     switch (Math.round(quality)) {

@@ -7,6 +7,7 @@ import ClassList from './ClassList';
 import Register from './Register';
 import LoginPage from './LoginPage';
 import UserManagement from './UserManagement';
+import Donate from './Donate';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -69,6 +70,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} userId={userId} />} /> // Pass the userId prop
           <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/donate" element={<Donate />} />
         </Routes>
       </div>
       {loginModalIsOpen && (

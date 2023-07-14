@@ -88,36 +88,34 @@
   }
   
   .gradeA, .gradeB, .gradeC, .gradeD, .gradeF, .easy, .moderate, .hard, .manageable, .challenging, .no-data {
-    font-size: 1.5em;
-    text-align: right;
+    font-size: 1.0em;
+    text-align: left
   }
   
   .stats {
-    font-size: 1.5em;
+    font-size: 1.0em;
   }
   
   .class-stats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
   }
   
   .class-stats > span, .class-stats > div {
     background-color: white;
-    padding: 10px;
+    padding: 5px;
     overflow-wrap: break-word;
   }
   
   @media (min-width: 768px) {
     .class-stats {
-      grid-template-columns: 700px auto auto; /* Adjust as needed */
+      grid-template-columns: 550px auto auto;
     }
   }
   
-  
-
   .quality-label, .difficulty-label {
     color: black;
-    font-size: 1.5em;
+    font-size: 1.0em;
   }

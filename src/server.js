@@ -32,7 +32,59 @@ app.use(cors({
 
 app.use(express.json()); // Parse JSON request bodies
 
-const ssm = new AWS.SSM();
+const ssm = new AWS.SSM(); // AWS SSM for grabbing Systems Manager Parameters
+
+const costexplorer = new AWS.CostExplorer({ region: 'us-east-1' }); // Cost explorer for grabbing forecasted costs.
+
+const getForecastedAndCurrentCosts = async () => {
+  // Get the current date in UTC and convert it to Pacific Time
+  const now = new Date();
+  now.setHours(now.getHours() - 7); // Convert from UTC to Pacific Daylight Time
+  const end = now.toISOString().split('T')[0];
+
+  // Get the date one day ago
+  const oneDayAgo = new Date(now);
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+  const start = oneDayAgo.toISOString().split('T')[0];
+
+  // Get the first day of next month for forecast start
+  const forecastStart = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().split('T')[0];
+
+  // Get the last day of next month for forecast end
+  const forecastEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
+
+  // Parameters for the getCostForecast request
+  const forecastParams = {
+    TimePeriod: { Start: forecastStart, End: forecastEnd },
+    Metric: 'UNBLENDED_COST',
+    Granularity: 'MONTHLY'
+  };
+
+  // Parameters for the getCostAndUsage request
+  const usageParams = {
+    TimePeriod: { Start: start, End: end },
+    Granularity: 'DAILY',
+    Metrics: ['UnblendedCost']
+  };
+
+  try {
+    // Get the forecasted costs
+    const forecastResponse = await costexplorer.getCostForecast(forecastParams).promise();
+
+    // Get the current costs
+    const usageResponse = await costexplorer.getCostAndUsage(usageParams).promise();
+    const currentCosts = usageResponse.ResultsByTime.reduce((total, item) => total + parseFloat(item.Total.UnblendedCost.Amount), 0);
+
+    // Return both the forecasted costs and the current costs
+    return {
+      forecast: forecastResponse.ForecastResultsByTime,
+      current: currentCosts
+    };
+  } catch (error) {
+    console.error('Error retrieving costs:', error);
+    throw error;
+  }
+};
 
 // Retrieve the parameter value from Systems Manager
 const getEmailCredentials = async () => {
@@ -117,7 +169,7 @@ const extractToken = (req) => {
 
 app.use(
   expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
-    const excludedPaths = ['/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email', '/classes/:id/vote'];
+    const excludedPaths = ['/donate', '/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email', '/classes/:id/vote'];
     console.log(`Received ${req.method} request for ${req.path}`);
     if (req.method === 'OPTIONS') {
       console.log('Skipping JWT check for OPTIONS request');
@@ -232,6 +284,22 @@ const getSSLCertificateOptions = async () => {
     throw error;
   }
 };
+
+// Route for getting the forecasted and current costs
+app.get('/donate', async (req, res) => {
+  console.log('Attempting to retrieve forecasted and current costs...');
+
+  try {
+    // Get the forecasted and current costs
+    const costs = await getForecastedAndCurrentCosts();
+
+    // Send the costs in the response
+    res.json(costs);
+  } catch (error) {
+    console.error('Error retrieving costs:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving costs' });
+  }
+});
 
 // Route for getting all classes
 app.get('/classes', async (req, res) => {

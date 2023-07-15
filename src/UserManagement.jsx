@@ -15,7 +15,7 @@ function UserManagement() {
 
   useEffect(() => {
     // Fetch the list of users when the component mounts
-    axios.get('https://dev.auburnonlinecs.com:3000/users', config)
+    axios.get(`${process.env.REACT_APP_API_ROUTE}/users`, config)
       .then(response => {
         setUsers(response.data.users);
       })
@@ -33,7 +33,7 @@ function UserManagement() {
     const confirmDelete = window.confirm(`Are you sure you want to delete user ${user.username}?`);
     if (confirmDelete) {
       try {
-        await axios.delete(`https://dev.auburnonlinecs.com:3000/users/${user.id}`);
+        await axios.delete(`${process.env.REACT_APP_API_ROUTE}/users/${user.id}`);
         // If the request is successful, remove the user from the state
         setUsers(users.filter(u => u.id !== user.id));
       } catch (error) {
@@ -47,7 +47,7 @@ function UserManagement() {
     user.isAdmin = true;
     // Send a PUT or PATCH request to your API to update the user
     try {
-      await axios.put(`https://dev.auburnonlinecs.com:3000/users/${user.id}/promote`, user, config);
+      await axios.put(`${process.env.REACT_APP_API_ROUTE}/users/${user.id}/promote`, user, config);
       // If the request is successful, update the user in the state
       setUsers(users.map(u => u.id === user.id ? user : u));
     } catch (error) {
@@ -59,7 +59,7 @@ function UserManagement() {
     event.preventDefault();
 
     try {
-      await axios.put(`https://dev.auburnonlinecs.com:3000/users/${editingUser.id}`, editingUser, config);
+      await axios.put(`${process.env.REACT_APP_API_ROUTE}/users/${editingUser.id}`, editingUser, config);
       // If the request is successful, update the user in the state
       setUsers(users.map(u => u.id === editingUser.id ? editingUser : u));
       // Clear the editingUser state

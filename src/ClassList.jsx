@@ -26,7 +26,7 @@ const ClassList = ({ isAdmin, token }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
-    fetch('https://dev.auburnonlinecs.com:3000/classes')
+    fetch(`${process.env.REACT_APP_API_ROUTE}/classes`)
       .then(response => response.json())
       .then(data => setClasses(data))
       .catch(error => console.error('Error:', error));
@@ -60,7 +60,7 @@ const ClassList = ({ isAdmin, token }) => {
 
   const handleViewDetails = async (classId) => {
     try {
-      const response = await fetch(`https://dev.auburnonlinecs.com:3000/classes/${classId}/details`);
+      const response = await fetch(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}/details`);
       if (response.ok) {
         const classDetails = await response.json();
         setSelectedClass(classDetails);
@@ -115,7 +115,7 @@ const ClassList = ({ isAdmin, token }) => {
   
     // Make an API call to update the class with the user's vote
     axios
-      .post(`https://dev.auburnonlinecs.com:3000/classes/${classId}/vote`, data, config)
+      .post(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}/vote`, data, config)
       .then((response) => {
         // Vote added successfully
         toast.success('Review added successfully');
@@ -138,7 +138,7 @@ const ClassList = ({ isAdmin, token }) => {
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
     if (confirmClearStats) {
-      axios.put(`https://dev.auburnonlinecs.com:3000/classes/${classId}/clear-stats`, {}, {
+      axios.put(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}/clear-stats`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -197,7 +197,7 @@ const ClassList = ({ isAdmin, token }) => {
   const handleDeleteClass = (id, token) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
     if (confirmDelete) {
-      axios.delete(`https://dev.auburnonlinecs.com:3000/classes/${id}`, {
+      axios.delete(`${process.env.REACT_APP_API_ROUTE}/classes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -219,7 +219,7 @@ const ClassList = ({ isAdmin, token }) => {
 
   const handleUpdate = async (updatedClass) => {
     try {
-        const response = await axios.put(`https://dev.auburnonlinecs.com:3000/classes/${updatedClass.id}`, 
+        const response = await axios.put(`${process.env.REACT_APP_API_ROUTE}/classes/${updatedClass.id}`, 
             updatedClass, 
             {
                 headers: {
@@ -247,7 +247,7 @@ const ClassList = ({ isAdmin, token }) => {
     
     try {
       // Make an API call to add the new class to the database
-      const response = await axios.post('https://dev.auburnonlinecs.com:3000/classes', newClass, {
+      const response = await axios.post(`${process.env.REACT_APP_API_ROUTE}/classes`, newClass, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -276,7 +276,7 @@ const ClassList = ({ isAdmin, token }) => {
 
   const fetchClassList = async () => {
     try {
-      const response = await axios.get('https://dev.auburnonlinecs.com:3000/classes');
+      const response = await axios.get(`${process.env.REACT_APP_API_ROUTE}/classes`);
       setClasses(response.data);
     } catch (error) {
       console.error('Error:', error);

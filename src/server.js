@@ -18,17 +18,21 @@ const nodemailer = require('nodemailer');
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
 
+require('dotenv').config();
+
 // Use morgan middleware for logging
 app.use(morgan('combined')); // 'combined' is a pre-defined log format
 
 // Force HTTP requests to redirect to HTTPS
 app.use(sslRedirect.HTTPS({ trustProtoHeader: true }));
 
-app.use(cors({
-  origin: 'https://dev.auburnonlinecs.com', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-  allowedHeaders: ['Authorization', 'Content-Type'],
-}));
+app.use(cors());
+
+//app.use(cors({
+//  origin: process.env.FULLROUTE, 
+//  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+//  allowedHeaders: ['Authorization', 'Content-Type'],
+//}));
 
 app.use(express.json()); // Parse JSON request bodies
 
@@ -436,10 +440,10 @@ app.post('/classes/:id/vote', async (req, res) => {
         [userId, classId]
       );
 
-      //if (voteCheckResult.length > 0) {
+      if (voteCheckResult.length > 0) {
         // The user has already voted for this class
-      //  return res.status(400).json({ error: 'You have already voted for this class.' });
-      //}
+        return res.status(400).json({ error: 'You have already voted for this class.' });
+      }
 
       // The user has not voted for this class, so proceed with the vote
 

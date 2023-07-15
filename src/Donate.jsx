@@ -6,7 +6,7 @@ const Donate = () => {
   const [current, setCurrent] = useState(null);
 
   useEffect(() => {
-    axios.get('https://dev.auburnonlinecs.com:3000/donate')
+    axios.get(`${process.env.REACT_APP_API_ROUTE}/donate`)
       .then(response => {
         // Get the current date
         const now = new Date();
@@ -39,7 +39,7 @@ const Donate = () => {
       <p>
         Help us defray server costs. 
         {forecast && current ? 
-          `Current server costs for ${current.month}: $${current.cost}. Forecasted server costs for the rest of ${forecast.month}: $${forecast.cost}` : 
+          `Forecasted server costs for the month of ${forecast.month}: $${forecast.cost}` : 
           'Loading costs...'}
       </p>
       <div dangerouslySetInnerHTML={{__html: donationScript}} />

@@ -27,7 +27,7 @@ function App() {
   
       // Fetch the username and userId from the server
       axios
-        .get('https://dev.auburnonlinecs.com:3000/user')
+        .get(`${process.env.REACT_APP_API_ROUTE}/user`)
         .then(response => {
           console.log(response.data);
           setUsername(response.data.username);

@@ -12,6 +12,7 @@
     "bcrypt": "^5.1.0",
     "chart.js": "^4.3.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-jwt": "^5.3.3",
     "express-sslify": "^1.2.0",
@@ -36,7 +37,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:dev": "dotenv -e .env.dev react-scripts build",
+    "build:prod": "dotenv -e .env.prod react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -57,6 +60,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "dotenv-cli": "^7.2.1"
   }
 }

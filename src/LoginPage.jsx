@@ -20,7 +20,7 @@ const LoginPage = ({ setIsOpen, setLoggedIn, setAdmin }) => {
 
     try {
       // Send a request to the server to validate the user's credentials
-      const response = await axios.post('https://dev.auburnonlinecs.com:3000/login', { username, password });
+      const response = await axios.post(`${process.env.REACT_APP_API_ROUTE}/login`, { username, password });
       const { token, isAdmin } = response.data;
 
       // Set user status as logged in

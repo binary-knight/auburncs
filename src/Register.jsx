@@ -28,7 +28,7 @@ const Register = ({ modalIsOpen, setModalIsOpen }) => {
 
     try {
       // Send a POST request to the server and assign the result to 'response'
-      const response = await axios.post('https://dev.auburnonlinecs.com:3000/register', { username, password, realname, email });
+      const response = await axios.post(`${process.env.REACT_APP_API_ROUTE}/register`, { username, password, realname, email });
 
       // If the request is successful, clear the form and the error message
       setUsername('');

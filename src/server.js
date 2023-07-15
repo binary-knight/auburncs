@@ -227,7 +227,7 @@ app.use(
 
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
-  const parameterName = '/auburncs/database_credentials';
+  const parameterName = `${process.env.DB_CREDENTIALS}`;
 
   const params = {
     Name: parameterName,

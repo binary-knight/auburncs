@@ -74,7 +74,7 @@ const ClassList = ({ isAdmin, token }) => {
   };
 
   const handleVote = (classId, difficulty, quality, hpw) => {
-    let userDifficulty = parseInt(prompt('Enter Difficulty (1 <Easy> - 5 <Extremely Difficult):'), 10);
+    let userDifficulty = parseInt(prompt('Enter Difficulty (1 <Easy> - 5 <Extremely Difficult>):'), 10);
     while (userDifficulty !== '' && (isNaN(userDifficulty) || userDifficulty < 1 || userDifficulty > 5)) {
       if (userDifficulty === null) {
         return; // Exit the function if the user clicks "Cancel"

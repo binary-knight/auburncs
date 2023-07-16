@@ -227,7 +227,7 @@ app.use(
 
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
-  const parameterName = `${process.env.DB_CREDENTIALS}`;
+  const parameterName = `${process.env.REACT_APP_DB_CREDENTIALS}`;
 
   const params = {
     Name: parameterName,
@@ -597,11 +597,14 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-// Route for deleting a user
 app.delete('/users/:id', async (req, res) => {
   const userId = req.params.id;
 
   try {
+    // Delete user votes first
+    await pool.query('DELETE FROM user_votes WHERE user_id = ?', [userId]);
+
+    // Then delete the user
     const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
 
     if (result.affectedRows > 0) {
@@ -685,9 +688,9 @@ app.post('/register', async (req, res) => {
   }
 
   // Check if the email is an auburn.edu email
-  if (!email.endsWith('@auburn.edu')) {
-    return res.status(400).json({ error: 'Only auburn.edu emails are allowed' });
-  }
+  //if (!email.endsWith('@auburn.edu')) {
+  //  return res.status(400).json({ error: 'Only auburn.edu emails are allowed' });
+  //}
 
   try {
     // Check if the username or email already exists
@@ -709,7 +712,7 @@ app.post('/register', async (req, res) => {
     );
 
     // send verification email
-    const verificationLink = `https://dev.auburnonlinecs.com:3000/verify-email?token=${token}`;
+    const verificationLink = `${process.env.REACT_APP_API_ROUTE}/verify-email?token=${token}`;
     const mailOptions = {
       from: 'auburnonlinecs@gmail.com',
       to: email,

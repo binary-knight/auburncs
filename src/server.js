@@ -688,9 +688,9 @@ app.post('/register', async (req, res) => {
   }
 
   // Check if the email is an auburn.edu email
-  //if (!email.endsWith('@auburn.edu')) {
-  //  return res.status(400).json({ error: 'Only auburn.edu emails are allowed' });
-  //}
+  if (!email.endsWith('@auburn.edu')) {
+    return res.status(400).json({ error: 'Only auburn.edu emails are allowed' });
+  }
 
   try {
     // Check if the username or email already exists

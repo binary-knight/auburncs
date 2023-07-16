@@ -74,7 +74,7 @@ const ClassList = ({ isAdmin, token }) => {
   };
 
   const handleVote = (classId, difficulty, quality, hpw) => {
-    let userDifficulty = parseInt(prompt('Enter Difficulty:'), 10);
+    let userDifficulty = parseInt(prompt('Enter Difficulty (1 <Easy> - 5 <Extremely Difficult):'), 10);
     while (userDifficulty !== '' && (isNaN(userDifficulty) || userDifficulty < 1 || userDifficulty > 5)) {
       if (userDifficulty === null) {
         return; // Exit the function if the user clicks "Cancel"
@@ -83,7 +83,7 @@ const ClassList = ({ isAdmin, token }) => {
       userDifficulty = parseInt(prompt('Enter Difficulty:'), 10);
     }
   
-    let userQuality = parseInt(prompt('Enter Quality:'), 10);
+    let userQuality = parseInt(prompt('Enter Quality (1 <Poor> - 5 <High Quality>):'), 10);
     while (userQuality !== '' && (isNaN(userQuality) || userQuality < 1 || userQuality > 5)) {
       if (userQuality === null) {
         return; // Exit the function if the user clicks "Cancel"
@@ -92,7 +92,7 @@ const ClassList = ({ isAdmin, token }) => {
       userQuality = parseInt(prompt('Enter Quality:'), 10);
     }
   
-    let userHPW = parseInt(prompt('Enter HPW:'), 10);
+    let userHPW = parseInt(prompt('Enter Hours Per Week spent on class:'), 10);
     while (userHPW !== '' && (isNaN(userHPW) || userHPW < 1 || userHPW >= 40)) {
       if (userHPW === null) {
         return; // Exit the function if the user clicks "Cancel"

@@ -43,7 +43,7 @@ const ClassList = ({ isAdmin, token }) => {
     return (
       <div className="class-stats">
         <span className="stats">
-          {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}
+          {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}, Reviews: {cls.votes}
         </span>
         <div>
           <span className="quality-label">Quality Grade: </span>

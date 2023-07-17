@@ -27,10 +27,6 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
     }
   };
 
-  const handleLogin = () => {
-    // Implement the login logic here
-  };
-
   return (
     <>
       <div className="header-top">

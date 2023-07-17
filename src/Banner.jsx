@@ -1,5 +1,5 @@
 import React from 'react';
-import bannerImage from './auburn.png'; // Replace with actual path
+import bannerImage from './auburn-logo.png'; // Replace with actual path
 
 const Banner = () => {
     const handleClick = () => {

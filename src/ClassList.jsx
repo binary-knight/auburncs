@@ -170,24 +170,25 @@ const handleVoteSubmit = (vote) => {
       return { score: 'No data yet', class: 'no-data' };
     }
   
-    const difficultyTier = difficulty < 2 ? 'low' : difficulty < 4 ? 'medium' : 'high';
-    const hpwTier = hpw < 10 ? 'low' : hpw < 20 ? 'medium' : 'high';
-  
-    if (difficultyTier === 'high' && hpwTier === 'high') {
+    if (difficulty <= 1 && hpw <= 5) {
+      return { score: 'Easy, minimal time commitment', class: 'very-easy' };
+    } else if (difficulty >= 4 && hpw >= 20) {
       return { score: 'Hard, extremely time consuming', class: 'hard' };
-    } else if (difficultyTier === 'low' && hpwTier === 'low') {
+    } else if (difficulty <= 2 && hpw <= 10) {
       return { score: 'Easy, not time consuming', class: 'easy' };
-    } else if (difficultyTier === 'high' && hpwTier === 'low') {
-      return { score: 'Difficult, not time consuming', class: 'manageable' };
-    } else if (difficultyTier === 'low' && hpwTier === 'high') {
+    } else if (difficulty <= 2 && hpw >= 10) {
       return { score: 'Easy, but time consuming', class: 'challenging' };
-    } else if (difficultyTier === 'medium' && hpwTier === 'medium') {
+    } else if (difficulty >= 3 && hpw <= 5) {
+      return { score: 'Difficult, not time consuming', class: 'manageable' };
+    } else if (difficulty >= 3 && hpw >= 15) {
+      return { score: 'Difficult, time consuming', class: 'challenging' };
+    } else if (difficulty >= 2 && difficulty <= 3.5 && hpw >= 10 && hpw <= 20) {
       return { score: 'Moderate difficulty, moderate time commitment', class: 'moderate' };
     } else {
       return { score: 'Varied difficulty and time commitment', class: 'challenging' };
     }
   }
-
+  
   const handleDeleteClass = (id, token) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
     if (confirmDelete) {

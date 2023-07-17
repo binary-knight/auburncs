@@ -18,6 +18,6 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd ~/auburncs/
-          git pull origin dev
-          ./update dev
+          git pull auburncs dev
+          ./update.sh dev
           sudo systemctl restart auburncs

@@ -1,6 +1,7 @@
 .class-list-container {
-  background-color: #f4f4f4;
+  background-color: #e5e5e6;
   padding: 20px;
+  color: rgb(0, 0, 0);
 }
 
 .class-list-container ul li {
@@ -11,7 +12,7 @@
   background-color: white;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #03244D; /* Auburn Blue */
+  border: 5px solid #E87722;
 }
 
 .class-item-content {

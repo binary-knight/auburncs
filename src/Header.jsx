@@ -27,10 +27,6 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
     }
   };
 
-  const handleLogin = () => {
-    // Implement the login logic here
-  };
-
   return (
     <>
       <div className="header-top">
@@ -44,39 +40,27 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
         </ul>
       </div>
       <div className="header-bottom">
-        {!loggedIn && (
-          <button type="button" onClick={handleLoginClick}>Login</button>
-        )}
-        {loggedIn && (
+        {!loggedIn ? (
           <>
-            <p>Welcome, {username}.</p>
-            <button type="button" onClick={handleLogout}>Logout</button>
-            {isAdmin && <Link to="/user-management">User Management</Link>}
-            {isAdmin && <p className="admin-label">Administrator</p>}
+            <button type="button" onClick={handleLoginClick}>Login</button>
+            <button type="button" onClick={handleRegisterClick}>Register</button>
+          </>
+        ) : (
+          <>
+            <div className="welcome-section">
+              <p>Welcome, {username}.</p>
+              {isAdmin && <Link to="/user-management" className="user-management-button">User Management</Link>}
+            </div>
+            <div className="logout-section">
+              <button type="button" onClick={handleLogout} className="logout-button">Logout</button>
+            </div>
           </>
         )}
-        {!loggedIn && (
-          <button type="button" onClick={handleRegisterClick}>Register</button>
-        )}
       </div>
-      {loggedIn && (
-        <div className="login-popup">
-          <div className="login-popup-content">
-            {error && <p className="error-message">{error}</p>}
-            {!loggedIn && (
-              <form onSubmit={handleLogin}>
-                <label>Username:</label>
-                <input type="text" onChange={(e) => setUsername(e.target.value)} />
-                <label>Password:</label>
-                <input type="password" onChange={(e) => setPassword(e.target.value)} />
-                <button type="submit">Login</button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+      {isAdmin && <p className="admin-label">Administrator</p>}
     </>
   );
+  
 };
 
 export default Header;

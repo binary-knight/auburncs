@@ -31,7 +31,8 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
         <div className="vote-modal">
             <div className="vote-modal-content">
                 <span className="vote-modal-close" onClick={onClose}>&times;</span>
-                <h2>Review {votingClass.name}</h2>
+                <h2>Review: {votingClass.name}</h2>
+                <p>* Difficulty and Quality are on a scale of 1 (low) to 5 (high).</p>
                 <form onSubmit={handleSubmit}>
                     <input type="number" name="difficulty" placeholder="Difficulty" value={vote.difficulty} onChange={handleChange} />
                     <input type="number" name="quality" placeholder="Quality" value={vote.quality} onChange={handleChange} />

@@ -35,8 +35,8 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
           <li><a href="https://discord.gg/ucX86j7jt6" target="_blank" rel="noopener noreferrer">Join Our Discord!</a></li>
           <li><a href="https://eng.auburn.edu/csse/academics/online/online-undergraduate-program.html" target="_blank" rel="noopener noreferrer">Official AU Site</a></li>
           <li><Link to="/donate">Donate</Link></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Software for Students</a></li>
-          <li><a href="#" target="_blank" rel="noopener noreferrer">Outside Resources</a></li>
+          <li><Link to="/faq">FAQ</Link></li>
+          <li><Link to="/resources">Resources</Link></li>
         </ul>
       </div>
       <div className="header-bottom">

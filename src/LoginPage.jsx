@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './LoginPage.css';
 
 const LoginPage = ({ setIsOpen, setLoggedIn, setAdmin }) => {
   const [username, setUsername] = useState('');
@@ -34,12 +37,14 @@ const LoginPage = ({ setIsOpen, setLoggedIn, setAdmin }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       // Close the login page
       setIsOpen(false);
+      toast.success(`Logged in successfully as ${username}.`);
     } catch (error) {
       // Clear the input fields
       setUsername('');
       setPassword('');
       // Display error message
       if (error.response && error.response.status === 401) {
+        toast.error('Log in failed.')
         // If the server returns a 401 status code (Unauthorized),
         // remove the token from local storage and headers
         localStorage.removeItem('token');

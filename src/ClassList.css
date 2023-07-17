@@ -1,121 +1,104 @@
 .class-list-container {
-    background-color: #f4f4f4;
-    padding: 20px;
-  }
-  
-  .class-item {
-    background-color: white;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .class-item-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .button-container {
-    display: flex;
-    gap: 10px;
-  }
+  background-color: #f4f4f4;
+  padding: 20px;
+}
 
-  .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: white;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  }
-  
-  /* You can also add a background to give a faded effect behind your modal */
-  .modal-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 999;
-  }
+.class-list-container ul li {
+  list-style-type: none;
+}
 
-  .gradeA {
-    color: green;
-  }
-  
-  .gradeB {
-    color: rgb(69, 204, 7);
-  }
-  
-  .gradeC {
-    color: orange;
-  }
-  
-  .gradeD {
-    color: red;
-  }
-  
-  .gradeF {
-    color: red;
-  }
-  
-  .easy {
-    color: green;
-  }
+.class-item {
+  background-color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #03244D; /* Auburn Blue */
+}
 
-  .manageable {
-    color: green;
-  }
-  
-  .moderate {
-    color: orange;
-  }
-  
-  .hard {
-    color: red;
-  }
+.class-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  .challenging {
-    color: red;
-  }
-  
-  .no-data {
-    color: lightgray;
-  }
-  
-  .gradeA, .gradeB, .gradeC, .gradeD, .gradeF, .easy, .moderate, .hard, .manageable, .challenging, .no-data {
-    font-size: 1.0em;
-    text-align: left
-  }
-  
-  .stats {
-    font-size: 1.0em;
-  }
-  
+.button-container {
+  display: flex;
+  gap: 10px;
+}
+
+.gradeA {
+  color: green;
+}
+
+.gradeB {
+  color: rgb(69, 204, 7);
+}
+
+.gradeC {
+  color: orange;
+}
+
+.gradeD {
+  color: red;
+}
+
+.gradeF {
+  color: red;
+}
+
+.easy {
+  color: green;
+}
+
+.manageable {
+  color: green;
+}
+
+.moderate {
+  color: orange;
+}
+
+.hard {
+  color: red;
+}
+
+.challenging {
+  color: red;
+}
+
+.no-data {
+  color: lightgray;
+}
+
+.gradeA, .gradeB, .gradeC, .gradeD, .gradeF, .easy, .moderate, .hard, .manageable, .challenging, .no-data {
+  font-size: 1.0em;
+  text-align: left;
+}
+
+.stats {
+  color: #03244D;
+  font-size: 1.0em;
+}
+
+.class-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  align-items: center;
+}
+
+.class-stats > span, .class-stats > div {
+  background-color: white;
+  padding: 5px;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
   .class-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 5px;
-    align-items: center;
+    grid-template-columns: 550px auto auto;
   }
-  
-  .class-stats > span, .class-stats > div {
-    background-color: white;
-    padding: 5px;
-    overflow-wrap: break-word;
-  }
-  
-  @media (min-width: 768px) {
-    .class-stats {
-      grid-template-columns: 550px auto auto;
-    }
-  }
-  
-  .quality-label, .difficulty-label {
-    color: black;
-    font-size: 1.0em;
-  }
+}
+
+.quality-label, .difficulty-label {
+  color: #03244D; /* Auburn Blue */
+  font-size: 1.0em;
+}

@@ -1,66 +1,74 @@
 .header-top {
-    background-color: black;
-    padding: 10px;
-  }
-  
-  .header-top ul {
-    list-style-type: none;
-    display: flex;
-    justify-content: space-around;
-    margin: 0;
-    padding: 0;
-  }
-  
+  background-color: #03244D; /* Auburn University's official blue color */
+  padding: 15px 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.header-top ul {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row; /* Make items display in a row */
+  justify-content: space-around;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.header-top a {
+  color: white;
+  text-decoration: none;
+  padding: 0 10px;
+}
+
+.header-bottom {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap to next line on small screens */
+  justify-content: center; /* Center buttons on small screens */
+  padding: 0 10px; /* Give some space on the sides */
+}
+
+.header-bottom button,
+.header-bottom a {
+  margin: 10px 5px; /* Add some margin around buttons */
+  color: #03244D; /* Auburn Blue */
+  text-decoration: none;
+  background-color: #E87722; /* Auburn Orange */
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.header-bottom button:hover,
+.header-bottom a:hover {
+  color: white;
+  background-color: #03244D; /* Auburn Blue on hover */
+}
+
+.admin-label {
+  background-color: red;
+  color: white;
+  padding: 10px 0;
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+.error-message {
+  color: red;
+}
+
+@media (max-width: 768px) {
   .header-top a {
-    color: white;
-    text-decoration: none;
+    padding: 10px 0; /* Add more vertical padding on small screens */
   }
   
   .header-bottom button,
   .header-bottom a {
-    margin-right: 10px;
-    color: black;
-    text-decoration: none;
-    background-color: #f0f0f0;
-    padding: 10px 20px;
-    border-radius: 5px;
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    margin: 5px 0; /* Adjust margin on small screens */
   }
-  
-  .login-popup {
-    display: none; /* Hide the popup by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    z-index: 9999;
-  }
-  
-  .login-popup-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgb(250, 0, 0);
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Add any additional styling for the login form elements */
-  .login-popup-content form {
-    /* Your styling here */
-  }
-  
-  /* Show the popup when the modal is open */
-  .login-popup.open {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .error-message {
-    color: red;
-  }
+}

@@ -14,6 +14,7 @@ const port = 3000;
 const path = require('path');
 const sslRedirect = require('express-sslify');
 const nodemailer = require('nodemailer');
+const history = require('connect-history-api-fallback');
 
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
@@ -835,12 +836,9 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Serve static files from the React app
+app.use(history());
 app.use(express.static(path.join(__dirname, '/var/www/html/auburncs-dev')));
-
-// Catch-all route handler
 app.get('*', (req, res) => {
-  // Respond with the index.html file
   res.sendFile(path.join(__dirname, '/var/www/html/auburncs-dev', 'index.html'));
 });
 

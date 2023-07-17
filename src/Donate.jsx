@@ -1,53 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Donate.css';
+import Spinner from './Spinner';  // Assuming you have a Spinner component
 
 const Donate = () => {
   const [forecast, setForecast] = useState(null);
   const [current, setCurrent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_ROUTE}/donate`)
       .then(response => {
-        // Get the current date
-        const now = new Date();
-
-        // Get the last day of this month
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        // Calculate the number of days left in the month
-        const daysLeft = lastDayOfMonth.getDate() - now.getDate();
-
-        // Calculate the forecasted cost for the rest of the month
-        const restOfMonthForecast = (parseFloat(response.data.forecast[0].MeanValue) / lastDayOfMonth.getDate()) * daysLeft;
-
-        // Get the current month
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const now = new Date();
         const currentMonth = monthNames[now.getMonth()];
-
-        setForecast({cost: restOfMonthForecast.toFixed(2), month: currentMonth});
+        setForecast({cost: parseFloat(response.data.forecast[0].MeanValue).toFixed(2), month: currentMonth});
         setCurrent({cost: response.data.current.toFixed(2), month: currentMonth});
+        setLoading(false);
       })
-      .catch(error => console.error('Error:', error));
-  }, []); // Empty dependency array so the effect runs once on component mount
+      .catch(error => {
+        console.error('Error:', error);
+        setLoading(false);
+      });
+  }, []);
 
   const donationScript = '<script src="https://donorbox.org/widget.js" paypalExpress="false"></script>';
   const donationIframe = '<iframe src="https://donorbox.org/embed/auburn-online-cs?default_interval=o&hide_donation_meter=true&show_content=true" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 100%; min-width: 100%; max-height:none!important"></iframe>';
 
-  return (
-    <div>
-      <h1>Donate</h1>
-      <p>
-        Help us defray server costs. 
-        {forecast && current ? 
-          `Forecasted server costs for the month of ${forecast.month}: $${forecast.cost}` : 
-          'Loading costs...'}
-      </p>
-      <div dangerouslySetInnerHTML={{__html: donationScript}} />
-      <div dangerouslySetInnerHTML={{__html: donationIframe}} />
-    </div>
-  );
-}
-
-export default Donate;
-
-
+    return (
+      <div className="donate-container">
+        <h1 className="donate-header">Donate</h1>
+        <p className="donate-info">
+          Help us defray server costs. 
+          {loading ? 
+            <div className="donate-loading"><Spinner /></div> : 
+            <> Forecasted server costs for the month of {forecast.month}: <span style={{color: 'red', fontWeight: 'bold'}}>${forecast.cost}</span></>
+          }
+        </p>
+        <div dangerouslySetInnerHTML={{__html: donationScript}} />
+        <div dangerouslySetInnerHTML={{__html: donationIframe}} />
+      </div>
+    );
+  }
+  
+  export default Donate;
+  

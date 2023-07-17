@@ -32,7 +32,6 @@ function App() {
           console.log(response.data);
           setUsername(response.data.username);
           setUserId(response.data.id); // Set the userId state
-          console.log(`userId: ${response.data.id}`);
         })
         .catch(error => {
           console.log('Error fetching username and userId:', error);

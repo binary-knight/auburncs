@@ -27,6 +27,7 @@
   display: flex;
   justify-content: left; /* Align buttons to the left and right */
   align-items: center;
+  background-color: #e5e5e6;
 }
 
 .header-bottom button,

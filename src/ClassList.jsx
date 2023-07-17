@@ -167,28 +167,35 @@ const handleVoteSubmit = (vote) => {
   function getDifficultyScore(difficulty, hpw) {
     // Check if the difficulty or hpw is null, undefined, or 0
     if (difficulty == null || difficulty === 0 || hpw == null || hpw === 0) {
-      return { score: 'No data yet', class: 'no-data' };
+      return { score: 'No data yet', class: 'no-data', color: 'gray' };
     }
   
-    if (difficulty <= 1 && hpw <= 5) {
-      return { score: 'Easy, minimal time commitment', class: 'very-easy' };
-    } else if (difficulty >= 4 && hpw >= 20) {
-      return { score: 'Hard, extremely time consuming', class: 'hard' };
-    } else if (difficulty <= 2 && hpw <= 10) {
-      return { score: 'Easy, not time consuming', class: 'easy' };
-    } else if (difficulty <= 2 && hpw >= 10) {
-      return { score: 'Easy, but time consuming', class: 'challenging' };
-    } else if (difficulty >= 3 && hpw <= 5) {
-      return { score: 'Difficult, not time consuming', class: 'manageable' };
-    } else if (difficulty >= 3 && hpw >= 15) {
-      return { score: 'Difficult, time consuming', class: 'challenging' };
-    } else if (difficulty >= 2 && difficulty <= 3.5 && hpw >= 10 && hpw <= 20) {
-      return { score: 'Moderate difficulty, moderate time commitment', class: 'moderate' };
-    } else {
-      return { score: 'Varied difficulty and time commitment', class: 'challenging' };
-    }
-  }
+    // Assign scores to different difficulty and hpw ranges
+    const difficultyScore = difficulty < 2 ? 1 : difficulty < 3 ? 2 : difficulty < 4 ? 3 : 4;
+    const hpwScore = hpw < 5 ? 1 : hpw < 10 ? 2 : hpw < 15 ? 3 : 4;
   
+    // Determine the class based on the scores
+    let scoreClasses = {};
+
+    const difficultyDescriptors = ['Very easy', 'Easy', 'Moderate', 'Difficult', 'Very difficult'];
+    const timeDescriptors = ['minimal', 'low', 'moderate', 'high', 'very high'];
+    const colors = ['green', 'lightgreen', 'yellow', 'orange', 'red'];
+
+    for(let i=1; i<=5; i++) {
+        for(let j=1; j<=5; j++) {
+            let score = `${difficultyDescriptors[i-1]} difficulty with a ${timeDescriptors[j-1]} time commitment`;
+            let classLabel = `class-${i}-${j}`;
+            let color = colors[Math.max(i, j) - 1];
+
+            scoreClasses[`${i}-${j}`] = { score: score, class: classLabel, color: color };
+        }
+    }
+
+    const key = `${difficultyScore}-${hpwScore}`;
+
+    return scoreClasses[key];
+}
+    
   const handleDeleteClass = (id, token) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
     if (confirmDelete) {

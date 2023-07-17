@@ -47,7 +47,7 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
         {loggedIn && (
           <>
             {isAdmin ? (
-              <p>WelcomeBLEEPTEST, {username}. You are currently logged in as an admin.</p>
+              <p>Welcome, {username}. You are currently logged in as an admin.</p>
             ) : (
               <p>Welcome, {username}!</p>
             )}

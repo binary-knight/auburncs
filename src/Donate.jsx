@@ -25,7 +25,7 @@ const Donate = () => {
   }, []);
 
   const donationScript = '<script src="https://donorbox.org/widget.js" paypalExpress="false"></script>';
-  const donationIframe = '<iframe src="https://donorbox.org/embed/auburn-online-cs?default_interval=o&hide_donation_meter=true&show_content=true" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 100%; min-width: 100%; max-height:none!important"></iframe>';
+  const donationIframe = '<iframe src="https://donorbox.org/embed/auburn-online-cs" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 500px; min-width: 250px; max-height:none!important"></iframe>';
 
     return (
       <div className="donate-container">

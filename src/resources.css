@@ -1,0 +1,55 @@
+.resources {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+  }
+  
+  .resources h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .resource-item {
+    margin-bottom: 30px;
+  }
+  
+  .resource-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .resource-description {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .resource-link {
+    font-size: 14px;
+    text-decoration: none;
+    color: #03244D; /* Auburn Blue */
+  }
+  
+  .resource-link:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .resources {
+      padding: 10px;
+    }
+  
+    .resources h2 {
+      font-size: 20px;
+    }
+  
+    .resource-title {
+      font-size: 16px;
+    }
+  
+    .resource-description {
+      font-size: 14px;
+    }
+  }
+  

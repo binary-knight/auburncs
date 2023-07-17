@@ -1,0 +1,26 @@
+.donate-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .donate-header {
+    text-align: center;
+    color: #03244D; /* Auburn University's official blue color */
+    font-size: 2em;
+    margin-bottom: 1em;
+  }
+  
+  .donate-info {
+    text-align: justify;
+    font-size: 1.2em;
+    margin-bottom: 2em;
+  }
+  
+  .donate-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+  }
+  

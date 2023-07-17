@@ -11,12 +11,14 @@
   }
   
   .register-modal {
-    background-color: white;
+    background-color: #03244D;
     padding: 20px;
     border-radius: 5px;
     max-width: 400px;
     width: 100%;
     text-align: center;
+    color: white;
+    border: 1px solid #E87722;
   }
   
   .register-modal h2 {

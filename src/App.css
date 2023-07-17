@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #03244D; /* Auburn Blue */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -25,7 +25,7 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: #E87722; /* Auburn Orange */
 }
 
 @keyframes App-logo-spin {
@@ -64,17 +64,29 @@ nav li {
 /* Content */
 .content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column; /* changed from row to column for better mobile view */
   margin: 20px;
 }
 
-.left-column {
-  flex-basis: 60%;
-  margin-right: 20px;
+.left-column,
+.right-column {
+  margin-bottom: 20px; /* added margin-bottom for better mobile view */
 }
 
-.right-column {
-  flex-basis: 40%;
+@media (min-width: 768px) {
+  .content {
+    flex-direction: row; /* revert to row on larger screens */
+  }
+
+  .left-column {
+    flex-basis: 60%;
+    margin-right: 20px;
+  }
+
+  .right-column {
+    flex-basis: 40%;
+    margin-bottom: 0; /* remove margin-bottom on larger screens */
+  }
 }
 
 /* Blog News Box */

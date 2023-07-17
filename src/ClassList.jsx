@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import axios from 'axios';
 import './ClassList.css';
+import VoteModal from './VoteModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,6 +25,14 @@ const ClassList = ({ isAdmin, token }) => {
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [voteModalIsOpen, setVoteModalIsOpen] = useState(false);
+  const [votingClass, setVotingClass] = useState(null);
+  const [voteForm, setVoteForm] = useState({ difficulty: '', quality: '', hpw: '' });
+
+  useEffect(() => {
+    console.log('voteModalIsOpen changed:', voteModalIsOpen);
+  }, [voteModalIsOpen]);
+  
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_ROUTE}/classes`)
@@ -73,53 +82,40 @@ const ClassList = ({ isAdmin, token }) => {
     }
   };
 
-  const handleVote = (classId, difficulty, quality, hpw) => {
-    let userDifficulty = parseInt(prompt('Enter Difficulty (1 <Easy> - 5 <Extremely Difficult>):'), 10);
-    while (userDifficulty !== '' && (isNaN(userDifficulty) || userDifficulty < 1 || userDifficulty > 5)) {
-      if (userDifficulty === null) {
-        return; // Exit the function if the user clicks "Cancel"
-      }
-      alert('Invalid input. Difficulty must be between 1-5.');
-      userDifficulty = parseInt(prompt('Enter Difficulty:'), 10);
-    }
+  const handleVote = (classId) => {
+    console.log('handleVote called');  // Log statement for debugging
+    // Find the class that is being voted on
+    const cls = classes.find(cls => cls.id === classId);
   
-    let userQuality = parseInt(prompt('Enter Quality (1 <Poor> - 5 <High Quality>):'), 10);
-    while (userQuality !== '' && (isNaN(userQuality) || userQuality < 1 || userQuality > 5)) {
-      if (userQuality === null) {
-        return; // Exit the function if the user clicks "Cancel"
-      }
-      alert('Invalid input. Quality must be between 1-5.');
-      userQuality = parseInt(prompt('Enter Quality:'), 10);
-    }
+    // Save the class to state
+    setVotingClass(cls);
   
-    let userHPW = parseInt(prompt('Enter Hours Per Week spent on class:'), 10);
-    while (userHPW !== '' && (isNaN(userHPW) || userHPW < 1 || userHPW >= 40)) {
-      if (userHPW === null) {
-        return; // Exit the function if the user clicks "Cancel"
-      }
-      alert('Invalid input. HPW must be less than 40.');
-      userHPW = parseInt(prompt('Enter HPW:'), 10);
-    }
-  
-    // Create the Axios configuration for the request
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-  
-    // Create the data object to send in the request
-    const data = {
-      difficulty: userDifficulty,
-      quality: userQuality,
-      hpw: userHPW,
-    };
+    // Open the voting modal
+    setVoteModalIsOpen(true);
+};
+
+const handleVoteSubmit = (vote) => {
+
+  // Create the Axios configuration for the request
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  // Create the data object to send in the request
+  const data = {
+    difficulty: parseInt(vote.difficulty),
+    quality: parseInt(vote.quality),
+    hpw: parseInt(vote.hpw),
+  };
   
     // Make an API call to update the class with the user's vote
     axios
-      .post(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}/vote`, data, config)
+      .post(`${process.env.REACT_APP_API_ROUTE}/classes/${votingClass.id}/vote`, data, config)
       .then((response) => {
         // Vote added successfully
         toast.success('Review added successfully');
         fetchClassList(); // Fetch the updated class list
+        setVoteModalIsOpen(false); // Close the vote modal
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
@@ -132,9 +128,9 @@ const ClassList = ({ isAdmin, token }) => {
           console.error('Error:', error);
         }
       });
-  };
-  
+};
 
+  
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
     if (confirmClearStats) {
@@ -157,7 +153,6 @@ const ClassList = ({ isAdmin, token }) => {
     }
   };
   
-
   function getQualityGrade(quality) {
     switch (Math.round(quality)) {
       case 5: return { grade: 'A', class: 'gradeA' };
@@ -169,7 +164,6 @@ const ClassList = ({ isAdmin, token }) => {
     }
   }
   
-
   function getDifficultyScore(difficulty, hpw) {
     // Check if the difficulty or hpw is null, undefined, or 0
     if (difficulty == null || difficulty === 0 || hpw == null || hpw === 0) {
@@ -273,7 +267,6 @@ const ClassList = ({ isAdmin, token }) => {
     }
   }
   
-
   const fetchClassList = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_ROUTE}/classes`);
@@ -281,12 +274,18 @@ const ClassList = ({ isAdmin, token }) => {
     } catch (error) {
       console.error('Error:', error);
     }
-  };
-  
+  };  
 
   return (
     <div className="class-list-container">
-      <h2>Class List</h2>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <h2>Classes &nbsp;&nbsp;&nbsp;</h2>
+        <p style={{ color: 'red', fontWeight: 'bold' }}>
+          * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
+        </p>
+      </div>
+    </div>
       <ul>
         {classes.map(cls => (
           <li key={cls.id}>
@@ -324,6 +323,16 @@ const ClassList = ({ isAdmin, token }) => {
           classDetails={selectedClass}
         />
       )}
+
+      {/* Modal component for voting */}
+    {votingClass && (
+      <VoteModal 
+        isOpen={voteModalIsOpen} 
+        votingClass={votingClass} 
+        onSubmit={handleVoteSubmit} 
+        onClose={() => setVoteModalIsOpen(false)} 
+      />
+    )}
   
       {isAdmin && (
         <>

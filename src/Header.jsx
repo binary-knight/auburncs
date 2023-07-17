@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Header.css';
 
 const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPassword, setLoginModalIsOpen, setRegisterModalIsOpen, handleCloseLoginModal, handleCloseRegisterModal }) => {
   const [error, setError] = useState('');
 
   const handleLogout = () => {
+    toast.success(`You have successfully logged out.`)
     handleCloseLoginModal();
     setUsername('');
     setPassword('');
@@ -46,13 +49,10 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
         )}
         {loggedIn && (
           <>
-            {isAdmin ? (
-              <p>Welcome, {username}. You are currently logged in as an admin.</p>
-            ) : (
-              <p>Welcome, {username}!</p>
-            )}
+            <p>Welcome, {username}.</p>
             <button type="button" onClick={handleLogout}>Logout</button>
             {isAdmin && <Link to="/user-management">User Management</Link>}
+            {isAdmin && <p className="admin-label">Administrator</p>}
           </>
         )}
         {!loggedIn && (
@@ -62,7 +62,6 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
       {loggedIn && (
         <div className="login-popup">
           <div className="login-popup-content">
-            <h2>Login</h2>
             {error && <p className="error-message">{error}</p>}
             {!loggedIn && (
               <form onSubmit={handleLogin}>
@@ -73,10 +72,6 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
                 <button type="submit">Login</button>
               </form>
             )}
-            {loggedIn && (
-              <p>Login successful!</p>
-            )}
-            <button type="button" onClick={handleCloseLoginModal}>Close</button>
           </div>
         </div>
       )}

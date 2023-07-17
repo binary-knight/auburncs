@@ -69,6 +69,11 @@ function UserManagement() {
     }
   };
 
+  // Check if the user is logged in and an admin before rendering the component
+  if (!token || !localStorage.getItem('isAdmin')) {
+    return "401 Unauthorized";
+  }
+
   return (
     <div>
       <h1>User Management</h1>
@@ -109,6 +114,7 @@ function UserManagement() {
       )}
     </div>
   );
+
 }
 
 export default UserManagement;

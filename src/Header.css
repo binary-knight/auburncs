@@ -1,9 +1,10 @@
 .header-top {
-  background-color: #03244D; /* Auburn University's official blue color */
+  background-color: #03244D; 
   padding: 15px 0;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  border: 5px solid #E87722;
 }
 
 .header-top ul {
@@ -24,14 +25,13 @@
 
 .header-bottom {
   display: flex;
-  flex-wrap: wrap; /* Allow buttons to wrap to next line on small screens */
-  justify-content: center; /* Center buttons on small screens */
-  padding: 0 10px; /* Give some space on the sides */
+  justify-content: left; /* Align buttons to the left and right */
+  align-items: center;
 }
 
 .header-bottom button,
 .header-bottom a {
-  margin: 10px 5px; /* Add some margin around buttons */
+  margin: 10px 5px;
   color: #03244D; /* Auburn Blue */
   text-decoration: none;
   background-color: #E87722; /* Auburn Orange */
@@ -44,18 +44,49 @@
 .header-bottom a:hover {
   color: white;
   background-color: #03244D; /* Auburn Blue on hover */
+  border: 1px solid #E87722;
+}
+
+.welcome-section {
+  display: flex;
+  align-items: center;
+}
+
+.user-management-button {
+  margin-left: 10px;
+  color: #03244D; /* Auburn Blue */
+  text-decoration: none;
+  background-color: #E87722; /* Auburn Orange */
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+  margin-right: 10px; /* Add margin to the right to create space between the buttons */
+}
+
+.logout-section {
+  display: flex;
+  align-items: center;
+}
+
+.logout-button {
+  margin-left: auto; /* Push the button to the right */
+  color: #03244D; /* Auburn Blue */
+  text-decoration: none;
+  background-color: #E87722; /* Auburn Orange */
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .admin-label {
   background-color: red;
   color: white;
   padding: 10px 0;
-  margin-top: 10px;
+  margin-top: 5px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
 }
-
 
 .error-message {
   color: red;

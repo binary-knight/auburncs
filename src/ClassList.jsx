@@ -289,10 +289,11 @@ const handleVoteSubmit = (vote) => {
 
   return (
     <div className="class-list-container">
+    <div className="class-reviews">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h2>Class Reviews &nbsp;&nbsp;&nbsp;</h2>
-          <p style={{ color: 'red', fontWeight: 'bold' }}>
+          <h2>Class Reviews</h2>
+          <p style={{ color: 'red', fontWeight: 'bold', marginLeft: '10px' }}>
             * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
           </p>
         </div>
@@ -303,8 +304,9 @@ const handleVoteSubmit = (vote) => {
           onChange={e => setSearchInput(e.target.value)}
         />
       </div>
+    </div>
   
-      <h2>Core Classes</h2>
+    <h3 className="core-classes-title">Core Classes</h3>
       <ul>
         {coreClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
           <li key={cls.id}>
@@ -334,7 +336,7 @@ const handleVoteSubmit = (vote) => {
         ))}
       </ul>
   
-      <h2>Electives</h2>
+      <h3><center>Electives</center></h3>
       <ul>
         {electiveClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
           <li key={cls.id}>

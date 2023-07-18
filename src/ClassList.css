@@ -8,6 +8,15 @@
   list-style-type: none;
 }
 
+.class-reviews {
+  margin-bottom: 0px !important;  /* adjust as needed */
+}
+
+.core-classes-title {
+  text-align: center;
+  margin-top: 1px;  /* adjust as needed */
+}
+
 .class-item {
   background-color: #e5e5e6;
   padding: 10px;

@@ -27,7 +27,7 @@ const ClassList = ({ isAdmin, token }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [voteModalIsOpen, setVoteModalIsOpen] = useState(false);
   const [votingClass, setVotingClass] = useState(null);
-  const [voteForm, setVoteForm] = useState({ difficulty: '', quality: '', hpw: '' });
+  const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
     console.log('voteModalIsOpen changed:', voteModalIsOpen);
@@ -286,16 +286,22 @@ const handleVoteSubmit = (vote) => {
 
   return (
     <div className="class-list-container">
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <h2>Classes &nbsp;&nbsp;&nbsp;</h2>
-        <p style={{ color: 'red', fontWeight: 'bold' }}>
-          * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2>Classes &nbsp;&nbsp;&nbsp;</h2>
+          <p style={{ color: 'red', fontWeight: 'bold' }}>
+            * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
+          </p>
+        </div>
+        <input
+          type="text"
+          placeholder="Search classes"
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+        />
       </div>
-    </div>
       <ul>
-        {classes.map(cls => (
+        {classes.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
           <li key={cls.id}>
             {editingClassId === cls.id ? (
               <ClassEditForm
@@ -322,7 +328,6 @@ const handleVoteSubmit = (vote) => {
           </li>
         ))}
       </ul>
-  
       {/* Modal component */}
       {selectedClass && (
         <Modal 
@@ -331,17 +336,15 @@ const handleVoteSubmit = (vote) => {
           classDetails={selectedClass}
         />
       )}
-
       {/* Modal component for voting */}
-    {votingClass && (
-      <VoteModal 
-        isOpen={voteModalIsOpen} 
-        votingClass={votingClass} 
-        onSubmit={handleVoteSubmit} 
-        onClose={() => setVoteModalIsOpen(false)} 
-      />
-    )}
-  
+      {votingClass && (
+        <VoteModal 
+          isOpen={voteModalIsOpen} 
+          votingClass={votingClass} 
+          onSubmit={handleVoteSubmit} 
+          onClose={() => setVoteModalIsOpen(false)} 
+        />
+      )}
       {isAdmin && (
         <>
           <h2>Add Class</h2>

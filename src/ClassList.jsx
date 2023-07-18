@@ -183,7 +183,7 @@ const handleVoteSubmit = (vote) => {
 
     for(let i=1; i<=5; i++) {
         for(let j=1; j<=5; j++) {
-            let score = `${difficultyDescriptors[i-1]} difficulty with a ${timeDescriptors[j-1]} time commitment`;
+            let score = `${difficultyDescriptors[i-1]} class with a ${timeDescriptors[j-1]} time commitment`;
             let classLabel = `class-${i}-${j}`;
             let color = colors[Math.max(i, j) - 1];
 
@@ -284,11 +284,14 @@ const handleVoteSubmit = (vote) => {
     }
   };  
 
+  const coreClasses = classes.filter(cls => cls.elective === 0);
+  const electiveClasses = classes.filter(cls => cls.elective === 1);
+
   return (
     <div className="class-list-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h2>Classes &nbsp;&nbsp;&nbsp;</h2>
+          <h2>Class Reviews &nbsp;&nbsp;&nbsp;</h2>
           <p style={{ color: 'red', fontWeight: 'bold' }}>
             * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
           </p>
@@ -300,8 +303,10 @@ const handleVoteSubmit = (vote) => {
           onChange={e => setSearchInput(e.target.value)}
         />
       </div>
+  
+      <h2>Core Classes</h2>
       <ul>
-        {classes.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
+        {coreClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
           <li key={cls.id}>
             {editingClassId === cls.id ? (
               <ClassEditForm
@@ -328,6 +333,37 @@ const handleVoteSubmit = (vote) => {
           </li>
         ))}
       </ul>
+  
+      <h2>Electives</h2>
+      <ul>
+        {electiveClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
+          <li key={cls.id}>
+            {editingClassId === cls.id ? (
+              <ClassEditForm
+                cls={cls}
+                handleUpdate={handleUpdate}
+                onCancel={() => setEditingClassId(null)}
+              />
+            ) : (
+              <div className="class-item">
+                {renderClassStats(cls)}
+                <div className="button-container">
+                  {isAdmin && (
+                    <>
+                      <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
+                      <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                      <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                    </>
+                  )}
+                  <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+                  {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
+                </div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+  
       {/* Modal component */}
       {selectedClass && (
         <Modal 
@@ -336,6 +372,7 @@ const handleVoteSubmit = (vote) => {
           classDetails={selectedClass}
         />
       )}
+  
       {/* Modal component for voting */}
       {votingClass && (
         <VoteModal 
@@ -345,6 +382,7 @@ const handleVoteSubmit = (vote) => {
           onClose={() => setVoteModalIsOpen(false)} 
         />
       )}
+  
       {isAdmin && (
         <>
           <h2>Add Class</h2>
@@ -400,13 +438,21 @@ const handleVoteSubmit = (vote) => {
 };
 
 const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
-  const [updatedClass, setUpdatedClass] = useState({ ...cls, syllabus: cls.syllabus, description: cls.description });
+  const [updatedClass, setUpdatedClass] = useState({ ...cls, syllabus: cls.syllabus, description: cls.description, elective: cls.elective });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUpdatedClass(prevState => ({
       ...prevState,
       [name]: value
+    }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setUpdatedClass(prevState => ({
+      ...prevState,
+      [name]: checked ? 1 : 0
     }));
   };
 
@@ -423,11 +469,15 @@ const ClassEditForm = ({ cls, handleUpdate, onCancel }) => {
       <input type="number" name="hpw" value={updatedClass.hpw} onChange={handleChange} />
       <input type="text" name="description" value={updatedClass.description} onChange={handleChange} />
       <input type="text" name="syllabus" value={updatedClass.syllabus} onChange={handleChange} />
+      <label>
+        Elective:
+        <input type="checkbox" name="elective" checked={updatedClass.elective === 1} onChange={handleCheckboxChange} />
+      </label>
       <button type="submit">Save</button>
       <button type="button" onClick={onCancel}>Cancel</button>
     </form>
   );
-};
+};;
 
 
 export default ClassList;

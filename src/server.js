@@ -354,7 +354,7 @@ app.put('/classes/:id', async (req, res) => {
   try {
     // Perform the necessary logic to update the class in the database
     const [result] = await pool.query(
-      'UPDATE classes SET name = ?, difficulty = ?, quality = ?, hpw = ?, description = ?, syllabus = ? WHERE id = ?',
+      'UPDATE classes SET name = ?, difficulty = ?, quality = ?, hpw = ?, description = ?, syllabus = ?, elective = ? WHERE id = ?',
       [
         updatedClassData.name,
         updatedClassData.difficulty,
@@ -362,6 +362,7 @@ app.put('/classes/:id', async (req, res) => {
         updatedClassData.hpw,
         updatedClassData.description,
         updatedClassData.syllabus,
+        updatedClassData.elective,
         classId
       ]
     );

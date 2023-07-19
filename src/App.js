@@ -11,6 +11,7 @@ import Donate from './Donate';
 import FAQ from './faq';
 import Resources from './resources';
 import HomePage from './HomePage';
+import Grade from './Grade';
 import './App.css'
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
           <Route path="/donate" element={<Donate />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/grade" element={<Grade />} />
         </Routes>
       </div>
       {loginModalIsOpen && (

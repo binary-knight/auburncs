@@ -5,7 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Header.css';
 
 const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPassword, setLoginModalIsOpen, setRegisterModalIsOpen, handleCloseLoginModal, handleCloseRegisterModal }) => {
-  const [error, setError] = useState('');
 
   const handleLogout = () => {
     toast.success(`You have successfully logged out.`)

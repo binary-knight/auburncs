@@ -1,0 +1,53 @@
+.grade-explanation {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .grade-explanation h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .grade-explanation h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #03244D;
+  }
+  
+  .grade-explanation p {
+    font-size: 1em;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  
+  .grade-explanation ul {
+    list-style-type: none;
+    margin-bottom: 30px;
+    padding-left: 0;
+  }
+  
+  .grade-explanation ul li {
+    margin-bottom: 5px;
+    font-size: 1em;
+  }
+  
+  .grade-explanation a {
+    display: inline-block;
+    color: #fff;
+    background-color: #03244D;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+  }
+  
+  .grade-explanation a:hover {
+    background-color: #23527c;
+  }
+  

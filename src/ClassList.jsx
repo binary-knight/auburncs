@@ -289,22 +289,22 @@ const handleVoteSubmit = (vote) => {
 
   return (
     <div className="class-list-container">
-    <div className="class-reviews">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h2>Class Reviews</h2>
-          <p style={{ color: 'red', fontWeight: 'bold', marginLeft: '10px' }}>
+      <div className="class-reviews">
+        <div className="review-container">
+          <div className="review-header">
+            <h2>Class Reviews</h2>
+            <input
+              type="text"
+              placeholder="Search classes"
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+            />
+          </div>
+          <p className="review-note">
             * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
           </p>
         </div>
-        <input
-          type="text"
-          placeholder="Search classes"
-          value={searchInput}
-          onChange={e => setSearchInput(e.target.value)}
-        />
       </div>
-    </div>
   
     <h3 className="core-classes-title">Core Classes</h3>
       <ul>

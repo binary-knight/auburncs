@@ -1,26 +1,48 @@
+/* Donate.css */
+
 .donate-container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff; 
+  padding: 20px;
+  color: rgb(0, 0, 0);
+}
+
+.donate-header {
+  text-align: center;
+  color: #03244D; /* Auburn University's official blue color */
+  font-size: 2em;
+  margin-bottom: 1em;
+}
+
+.donate-info {
+  text-align: center; 
+  font-size: 1.2em;
+  margin-bottom: 2em;
+}
+
+.donate-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+}
+
+
+
+@media (max-width: 768px) {
+  .donate-container {
+    padding: 10px;
   }
-  
+
   .donate-header {
-    text-align: center;
-    color: #03244D; /* Auburn University's official blue color */
-    font-size: 2em;
-    margin-bottom: 1em;
+    font-size: 1.6em;
   }
-  
+
   .donate-info {
-    text-align: justify;
-    font-size: 1.2em;
-    margin-bottom: 2em;
+    font-size: 1em;
   }
-  
-  .donate-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-  }
+}
+
   

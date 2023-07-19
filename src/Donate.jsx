@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Donate.css';
-import Spinner from './Spinner';  // Assuming you have a Spinner component
+import Spinner from './Spinner'; 
 
 const Donate = () => {
   const [forecast, setForecast] = useState(null);
-  const [current, setCurrent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +14,6 @@ const Donate = () => {
         const now = new Date();
         const currentMonth = monthNames[now.getMonth()];
         setForecast({cost: parseFloat(response.data.forecast[0].MeanValue).toFixed(2), month: currentMonth});
-        setCurrent({cost: response.data.current.toFixed(2), month: currentMonth});
         setLoading(false);
       })
       .catch(error => {

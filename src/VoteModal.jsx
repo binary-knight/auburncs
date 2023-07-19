@@ -19,24 +19,73 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
           ...prevVote,
           [name]: value
         }));
-      };
+    };
       
-  
-      const handleSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(vote);  // pass the vote state
-      };     
-  
-      return (
+    };     
+
+    return (
         <div className="vote-modal">
             <div className="vote-modal-content">
                 <span className="vote-modal-close" onClick={onClose}>&times;</span>
                 <h2>Review: {votingClass.name}</h2>
-                <p>* Difficulty and Quality are on a scale of 1 (low) to 5 (high).</p>
                 <form onSubmit={handleSubmit}>
-                    <input type="number" name="difficulty" placeholder="Difficulty" value={vote.difficulty} onChange={handleChange} />
-                    <input type="number" name="quality" placeholder="Quality" value={vote.quality} onChange={handleChange} />
-                    <input type="number" name="hpw" placeholder="Hours Per Week" value={vote.hpw} onChange={handleChange} />
+                    <fieldset>
+                        <legend>Difficulty</legend>
+                        <label>
+                            <input type="radio" value="1" name="difficulty" onChange={handleChange} /> Very Easy
+                        </label>
+                        <label>
+                            <input type="radio" value="2" name="difficulty" onChange={handleChange} /> Easy
+                        </label>
+                        <label>
+                            <input type="radio" value="3" name="difficulty" onChange={handleChange} /> Moderate
+                        </label>
+                        <label>
+                            <input type="radio" value="4" name="difficulty" onChange={handleChange} /> Difficult
+                        </label>
+                        <label>
+                            <input type="radio" value="5" name="difficulty" onChange={handleChange} /> Very Difficult
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Quality</legend>
+                        <label>
+                            <input type="radio" value="1" name="quality" onChange={handleChange} /> Poor
+                        </label>
+                        <label>
+                            <input type="radio" value="2" name="quality" onChange={handleChange} /> Fair
+                        </label>
+                        <label>
+                            <input type="radio" value="3" name="quality" onChange={handleChange} /> Average
+                        </label>
+                        <label>
+                            <input type="radio" value="4" name="quality" onChange={handleChange} /> Good
+                        </label>
+                        <label>
+                            <input type="radio" value="5" name="quality" onChange={handleChange} /> Excellent
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Hours Per Week</legend>
+                        <label>
+                            <input type="radio" value="1" name="hpw" onChange={handleChange} /> 1-10
+                        </label>
+                        <label>
+                            <input type="radio" value="2" name="hpw" onChange={handleChange} /> 10-20
+                        </label>
+                        <label>
+                            <input type="radio" value="3" name="hpw" onChange={handleChange} /> 20-30
+                        </label>
+                        <label>
+                            <input type="radio" value="4" name="hpw" onChange={handleChange} /> 30+
+                        </label>
+                    </fieldset>
+                    
                     <button type="submit">Submit Review</button>
                     <button type="button" onClick={onClose}>Cancel</button>
                 </form>
@@ -45,5 +94,6 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
     );
 }
   
-  export default VoteModal;
+export default VoteModal;
+
   

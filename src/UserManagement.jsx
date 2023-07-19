@@ -15,7 +15,7 @@ function UserManagement() {
 
   useEffect(() => {
     // Fetch the list of users when the component mounts
-    axios.get(`${process.env.REACT_APP_API_ROUTE}/users`, config)
+    axios.get(`${process.env.REACT_APP_API_ROUTE}/users`)
       .then(response => {
         setUsers(response.data.users);
       })

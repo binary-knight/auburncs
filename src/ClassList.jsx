@@ -5,6 +5,7 @@ import './ClassList.css';
 import VoteModal from './VoteModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
 
 const roundToNearestTenth = (value) => {
   return Math.round(value * 10) / 10;
@@ -41,31 +42,52 @@ const ClassList = ({ isAdmin, token }) => {
       .catch(error => console.error('Error:', error));
   }, []);
 
+  const mapDifficultyToRating = (difficulty) => {
+    if (difficulty === 0) return { grade: 'No Data', class: 'no-data' };
+    if (difficulty < 2) return { grade: 'Very Easy', class: 'gradeA' };
+    if (difficulty < 3) return { grade: 'Easy', class: 'gradeB' };
+    if (difficulty < 4) return { grade: 'Moderate', class: 'gradeC' };
+    if (difficulty < 5) return { grade: 'Difficult', class: 'gradeD' };
+    return { grade: 'Very Difficult', class: 'gradeF' };
+  }
+  
+  const mapQualityToRating = (quality) => {
+    if (quality === 0) return { grade: 'No Data', class: 'no-data' };
+    if (quality <= 1) return { grade: 'Poor', class: 'gradeF' };
+    if (quality <= 2) return { grade: 'Fair', class: 'gradeD' };
+    if (quality <= 3) return { grade: 'Average', class: 'gradeC' };
+    if (quality <= 4) return { grade: 'Good', class: 'gradeB' };
+    return { grade: 'Excellent', class: 'gradeA' };
+  }
+  
+  const mapHPWToRating = (hpw) => {
+    if (hpw === 0) return { grade: 'No Data', class: 'no-data' };
+    if (hpw <= 1) return { grade: 'Low', class: 'gradeA' };
+    if (hpw <= 2) return { grade: 'Moderate', class: 'gradeC' };
+    if (hpw <= 3) return { grade: 'High', class: 'gradeD' };
+    return { grade: 'Extreme', class: 'gradeF' };
+  }
+  
   const renderClassStats = (cls) => {
     const roundedDifficulty = roundToNearestTenth(cls.difficulty);
     const roundedQuality = roundToNearestTenth(cls.quality);
     const roundedHPW = roundToNearestTenth(cls.hpw);
   
-    const qualityGradeObject = getQualityGrade(cls.quality);
-    const difficultyScoreObject = getDifficultyScore(cls.difficulty, cls.hpw);
-
+    const difficultyRating = mapDifficultyToRating(roundedDifficulty);
+    const qualityRating = mapQualityToRating(roundedQuality);
+    const hpwRating = mapHPWToRating(roundedHPW);
+  
     return (
       <div className="class-stats">
         <span className="stats">
-          {cls.name} - Difficulty: {roundedDifficulty.toFixed(1)}, Quality: {roundedQuality.toFixed(1)}, HPW: {roundedHPW.toFixed(1)}, Reviews: {cls.votes}
+          {cls.name} - 
+          Difficulty: <span className={difficultyRating.class}>{difficultyRating.grade}</span>, 
+          Quality: <span className={qualityRating.class}>{qualityRating.grade}</span>, 
+          HPW: <span className={hpwRating.class}>{hpwRating.grade}</span>, Reviews: {cls.votes}
         </span>
-        <div>
-          <span className="quality-label">Quality Grade: </span>
-          <span className={qualityGradeObject.class}>{qualityGradeObject.grade}</span>
-        </div>
-        <div>
-          <span className="difficulty-label">Difficulty Score: </span>
-          <span className={difficultyScoreObject.class}>{difficultyScoreObject.score}</span>
-        </div>
       </div>
     );
   };
-  
 
   const handleViewDetails = async (classId) => {
     try {
@@ -152,49 +174,6 @@ const handleVoteSubmit = (vote) => {
         .catch(error => console.error('Error:', error));
     }
   };
-  
-  function getQualityGrade(quality) {
-    switch (Math.round(quality)) {
-      case 5: return { grade: 'A', class: 'gradeA' };
-      case 4: return { grade: 'B', class: 'gradeB' };
-      case 3: return { grade: 'C', class: 'gradeC' };
-      case 2: return { grade: 'D', class: 'gradeD' };
-      case 1: return { grade: 'F', class: 'gradeF' };
-      default: return { grade: 'No data', class: 'no-data' };
-    }
-  }
-  
-  function getDifficultyScore(difficulty, hpw) {
-    // Check if the difficulty or hpw is null, undefined, or 0
-    if (difficulty == null || difficulty === 0 || hpw == null || hpw === 0) {
-      return { score: 'No data yet', class: 'no-data', color: 'gray' };
-    }
-  
-    // Assign scores to different difficulty and hpw ranges
-    const difficultyScore = difficulty < 2 ? 1 : difficulty < 3 ? 2 : difficulty < 4 ? 3 : 4;
-    const hpwScore = hpw < 5 ? 1 : hpw < 10 ? 2 : hpw < 15 ? 3 : 4;
-  
-    // Determine the class based on the scores
-    let scoreClasses = {};
-
-    const difficultyDescriptors = ['Very easy', 'Easy', 'Moderate', 'Difficult', 'Very difficult'];
-    const timeDescriptors = ['minimal', 'low', 'moderate', 'high', 'very high'];
-    const colors = ['green', 'lightgreen', 'yellow', 'orange', 'red'];
-
-    for(let i=1; i<=5; i++) {
-        for(let j=1; j<=5; j++) {
-            let score = `${difficultyDescriptors[i-1]} class with a ${timeDescriptors[j-1]} time commitment`;
-            let classLabel = `class-${i}-${j}`;
-            let color = colors[Math.max(i, j) - 1];
-
-            scoreClasses[`${i}-${j}`] = { score: score, class: classLabel, color: color };
-        }
-    }
-
-    const key = `${difficultyScore}-${hpwScore}`;
-
-    return scoreClasses[key];
-}
     
   const handleDeleteClass = (id, token) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete this class ${id}?`);
@@ -300,47 +279,44 @@ const handleVoteSubmit = (vote) => {
               onChange={e => setSearchInput(e.target.value)}
             />
           </div>
-          <p className="review-note">
-            * Reviews are from 1 (Lowest) to 5 (Highest). HPW is estimated Hours Per Week a student spent on the class.
-          </p>
+          <Link to="/grade" className="review-note">
+              Click for Grading Explanation
+          </Link>
         </div>
       </div>
   
-    <h3 className="core-classes-title">Core Classes</h3>
-      <ul>
+      <h3 className="core-classes-title">Core Classes</h3>
+      <div className="class-items-container">
         {coreClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
-          <li key={cls.id}>
-            {editingClassId === cls.id ? (
-              <ClassEditForm
-                cls={cls}
-                handleUpdate={handleUpdate}
-                onCancel={() => setEditingClassId(null)}
-              />
-            ) : (
-              <div className="class-item">
-                {renderClassStats(cls)}
-                <div className="button-container">
-                  {isAdmin && (
-                    <>
-                      <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
-                      <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
-                      <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-                    </>
-                  )}
-                  <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
-                  {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+          editingClassId === cls.id ? (
+            <ClassEditForm
+              cls={cls}
+              handleUpdate={handleUpdate}
+              onCancel={() => setEditingClassId(null)}
+            />
+         ) : (
+          <div className="class-item">
+            {renderClassStats(cls)}
+            <div className="button-container">
+              {isAdmin && (
+                <>
+                 <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
+                  <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                  <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                </>
+              )}
+              <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+              {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
+            </div>
+          </div>
+        )
+      ))}
+    </div>
   
-      <h3><center>Electives</center></h3>
-      <ul>
-        {electiveClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
-          <li key={cls.id}>
-            {editingClassId === cls.id ? (
+        <h3><center>Electives</center></h3>
+        <div className="class-items-container">
+          {electiveClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
+            editingClassId === cls.id ? (
               <ClassEditForm
                 cls={cls}
                 handleUpdate={handleUpdate}
@@ -361,10 +337,9 @@ const handleVoteSubmit = (vote) => {
                   {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
                 </div>
               </div>
-            )}
-          </li>
-        ))}
-      </ul>
+            )
+          ))}
+        </div>
   
       {/* Modal component */}
       {selectedClass && (

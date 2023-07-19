@@ -10,6 +10,8 @@ import UserManagement from './UserManagement';
 import Donate from './Donate';
 import FAQ from './faq';
 import Resources from './resources';
+import HomePage from './HomePage';
+import './App.css'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -69,7 +71,8 @@ function App() {
           handleCloseRegisterModal={handleCloseRegisterModal} // Pass down this function to the Header component
         />
         <Routes>
-          <Route path="/" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} userId={userId} />} /> // Pass the userId prop
+        <Route path="/" element={<HomePage />} />
+          <Route path="/classlist" element={<ClassList loggedIn={loggedIn} isAdmin={isAdmin} token={localStorage.getItem('token')} userId={userId} />} />
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/donate" element={<Donate />} />
           <Route path="/faq" element={<FAQ />} />

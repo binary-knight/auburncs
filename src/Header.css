@@ -94,13 +94,27 @@
 }
 
 @media (max-width: 768px) {
+  .header-top ul {
+    flex-direction: column; /* Stack items vertically on small screens */
+  }
+
   .header-top a {
     padding: 10px 0; /* Add more vertical padding on small screens */
   }
-  
+
   .header-bottom button,
   .header-bottom a {
     padding: 10px;
     margin: 5px 0; /* Adjust margin on small screens */
+  }
+
+  .welcome-section,
+  .logout-section {
+    width: 100%; /* Take up the full width on small screens */
+    justify-content: center; /* Center items on small screens */
+  }
+
+  .logout-button {
+    margin-left: 0; /* Remove the left margin on small screens */
   }
 }

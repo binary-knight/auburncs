@@ -1,0 +1,59 @@
+/* homepage.css */
+
+.homepage {
+    font-family: Arial, sans-serif;
+    color: #0C2340; /* Navy Blue */
+    padding: 20px;
+    background-color: #e5e5e6; /* Light Gray */
+}
+  
+  .homepage-title {
+    font-size: 2em;
+    color: #DD550C; /* Burnt Orange */
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .homepage-intro {
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    text-align: justify;
+  }
+  
+  .section {
+    margin-bottom: 30px;
+  }
+  
+  .section-title {
+    font-size: 1.6em;
+    margin-bottom: 10px;
+  }
+  
+  .section-description {
+    font-size: 1.2em;
+    text-align: justify;
+  }
+  
+  .homepage-closing {
+    font-size: 1.2em;
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  /* Responsive design for mobile devices */
+  @media (max-width: 768px) {
+    .homepage-title {
+      font-size: 1.6em;
+    }
+  
+    .homepage-intro,
+    .section-description,
+    .homepage-closing {
+      font-size: 1em;
+    }
+  
+    .section-title {
+      font-size: 1.4em;
+    }
+  }
+  

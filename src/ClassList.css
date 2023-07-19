@@ -9,12 +9,12 @@
 }
 
 .class-reviews {
-  margin-bottom: 0px !important;  /* adjust as needed */
+  margin-bottom: 0px !important; 
 }
 
 .core-classes-title {
   text-align: center;
-  margin-top: 1px;  /* adjust as needed */
+  margin-top: 1px;  
 }
 
 .class-item {
@@ -106,7 +106,12 @@
 
 @media (min-width: 768px) {
   .class-stats {
+    display: grid;
     grid-template-columns: 550px auto auto;
+  }
+
+  .class-stats > span, .class-stats > div {
+    text-align: left; /* Align text to the left on larger screens */
   }
 }
 
@@ -139,4 +144,33 @@
 .class-4-5, .class-5-4, .class-5-5 {
   color: #CC79A7;
   font-weight: bold;
+}
+
+.review-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.review-note {
+  order: 2; /* The paragraph will be the last element in the container by default */
+  color: red;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+@media (max-width: 768px) {
+  .review-note {
+    order: 1; /* The paragraph will be the first element in the container on small screens */
+    font-size: 0.8em;
+    text-align: center;
+  }
 }

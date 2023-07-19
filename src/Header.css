@@ -60,7 +60,7 @@
   background-color: #E87722; /* Auburn Orange */
   padding: 10px 20px;
   border-radius: 5px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+  border: 3px solid #03244D;
   margin-right: 10px; /* Add margin to the right to create space between the buttons */
 }
 
@@ -75,8 +75,8 @@
   text-decoration: none;
   background-color: #E87722; /* Auburn Orange */
   padding: 10px 20px;
+  border: 3px solid #03244D;
   border-radius: 5px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .admin-label {
@@ -87,6 +87,7 @@
   text-align: center;
   width: 100%;
   box-sizing: border-box;
+  border: 3px solid rgb(0, 0, 0);
 }
 
 .error-message {
@@ -94,27 +95,57 @@
 }
 
 @media (max-width: 768px) {
+  .header-top {
+    background-color: #03244D; 
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border: 1px solid #E87722;
+  }
+
   .header-top ul {
-    flex-direction: column; /* Stack items vertically on small screens */
+    flex-direction: column; 
   }
 
   .header-top a {
-    padding: 10px 0; /* Add more vertical padding on small screens */
+    padding: 10px 0; 
   }
 
   .header-bottom button,
   .header-bottom a {
     padding: 10px;
-    margin: 5px 0; /* Adjust margin on small screens */
+    margin: 5px 5px; 
+  }
+
+  .header-top ul {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 5px; 
+    padding: 10px; 
+  }
+
+  .header-top ul li {
+    list-style: none; 
+  }
+
+  .header-top ul li a {
+    display: block;
+    background-color: #E87722; 
+    color: #03244D; 
+    padding: 10px; 
+    border-radius: 3px; 
+    text-align: center; 
   }
 
   .welcome-section,
   .logout-section {
-    width: 100%; /* Take up the full width on small screens */
-    justify-content: center; /* Center items on small screens */
+    width: 100%; 
+    justify-content: center; 
   }
 
   .logout-button {
-    margin-left: 0; /* Remove the left margin on small screens */
+    margin-left: 0; 
   }
+
 }

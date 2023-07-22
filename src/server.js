@@ -457,8 +457,13 @@ app.get('/classes/:id/votes', async (req, res) => {
 // Route for Voting on a Class
 app.post('/classes/:id/vote', async (req, res) => {
   const classId = req.params.id;
-  const { difficulty, quality, hpw } = req.body;
+  let { difficulty, quality, hpw } = req.body;
   const token = extractToken(req);
+
+  // Convert difficulty, quality, and hpw to numbers
+  difficulty = parseInt(difficulty);
+  quality = parseInt(quality);
+  hpw = parseInt(hpw);
 
   if (!token) {
     console.log('No token found in request');

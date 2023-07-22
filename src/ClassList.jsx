@@ -91,71 +91,56 @@ const ClassList = ({ isAdmin, token }) => {
     );
   };
 
-  const handleViewDetails = async (classId) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}/details`);
-      if (response.ok) {
-        const classDetails = await response.json();
-        setSelectedClass(classDetails);
-        setModalIsOpen(true);
-      } else {
-        console.error('Error:', response.status);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+  const handleVoteSubmit = (vote) => {
+    // Create the Axios configuration for the request
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+  
+    // Map HPW to correct range
+    let hpw;
+    switch(vote.hpw) {
+      case "1-10":
+        hpw = 1;
+        break;
+      case "10-20":
+        hpw = 2;
+        break;
+      case "20-30":
+        hpw = 3;
+        break;
+      default:
+        hpw = 4;
     }
-  };
-
-  const handleVote = (classId) => {
-    console.log('handleVote called');  // Log statement for debugging
-    // Find the class that is being voted on
-    const cls = classes.find(cls => cls.id === classId);
   
-    // Save the class to state
-    setVotingClass(cls);
-  
-    // Open the voting modal
-    setVoteModalIsOpen(true);
-};
-
-const handleVoteSubmit = (vote) => {
-  // Create the Axios configuration for the request
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
+    // Create the data object to send in the request
+    const data = {
+      difficulty: parseInt(vote.difficulty),
+      quality: parseInt(vote.quality),
+      hpw: hpw,
+    };
+    
+    // Make an API call to update the class with the user's vote
+    axios
+      .post(`${process.env.REACT_APP_API_ROUTE}/classes/${votingClass.id}/vote`, data, config)
+      .then((response) => {
+        // Vote added successfully
+        toast.success('Review added successfully');
+        fetchClassList(); // Fetch the updated class list
+        setVoteModalIsOpen(false); // Close the vote modal
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          // User has already voted for this class
+          toast.error('You have already reviewed this class.');
+        } else if (error.response && error.response.status === 405) {
+          // Invalid review parameters
+          toast.error('Invalid review parameters. Quality and Difficulty must be between 1-5, and HPW must be a string representation of a range.');
+        } else {
+          console.error('Error:', error);
+        }
+      });
   };
-
-  // Create the data object to send in the request
-  const data = {
-    difficulty: parseInt(vote.difficulty),
-    quality: parseInt(vote.quality),
-    hpw: parseInt(vote.hpw),
-  };
-  
-  // Make an API call to update the class with the user's vote
-  axios
-    .post(`${process.env.REACT_APP_API_ROUTE}/classes/${votingClass.id}/vote`, data, config)
-    .then((response) => {
-      // Vote added successfully
-      toast.success('Review added successfully');
-
-      // Update the class list state with the updated class
-      const updatedClass = response.data;
-      setClasses(prevClasses => prevClasses.map(cls => cls.id === updatedClass.id ? updatedClass : cls));
-
-      setVoteModalIsOpen(false); // Close the vote modal
-    })
-    .catch((error) => {
-      if (error.response && error.response.status === 400) {
-        // User has already voted for this class
-        toast.error('You have already reviewed this class.');
-      } else if (error.response && error.response.status === 405) {
-        // Invalid review parameters
-        toast.error('Invalid review parameters. Quality must be between 1-5, Difficulty must be between 1-5, and HPW must be less than 40.');
-      } else {
-        console.error('Error:', error);
-      }
-    });
-};
 
 
 const handleReviewBreakdown = async (classId) => {

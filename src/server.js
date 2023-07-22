@@ -475,10 +475,10 @@ app.post('/classes/:id/vote', async (req, res) => {
     }
 
     if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
-        !Number.isInteger(quality) || quality < 1 || quality > 5 ||
-        !Number.isInteger(hpw) || hpw < 1 || hpw > 40) {
-      return res.status(405).json({ error: 'Invalid voting parameters' });
-    }
+    !Number.isInteger(quality) || quality < 1 || quality > 5 ||
+    !Number.isInteger(hpw) || hpw < 1 || hpw > 4) {
+  return res.status(405).json({ error: 'Invalid voting parameters' });
+}
 
     try {
       const [result] = await pool.query('SELECT difficulty, quality, hpw, votes FROM classes WHERE id = ?', [classId]);

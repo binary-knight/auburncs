@@ -454,12 +454,10 @@ app.get('/classes/:id/votes', async (req, res) => {
   }
 });
 
-
-// Route for voting on a class
+// Route for Voting on a Class
 app.post('/classes/:id/vote', async (req, res) => {
   const classId = req.params.id;
   const { difficulty, quality, hpw } = req.body;
-
   const token = extractToken(req);
 
   if (!token) {
@@ -476,30 +474,13 @@ app.post('/classes/:id/vote', async (req, res) => {
       return res.status(405).json({ error: 'Bad request' });
     }
 
-    // Validate voting parameters
-    if (
-      !Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
-      !Number.isInteger(quality) || quality < 1 || quality > 5 ||
-      !Number.isInteger(hpw) || hpw < 1 || hpw > 40
-    ) {
+    if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
+        !Number.isInteger(quality) || quality < 1 || quality > 5 ||
+        !Number.isInteger(hpw) || hpw < 1 || hpw > 40) {
       return res.status(405).json({ error: 'Invalid voting parameters' });
     }
 
     try {
-      // Check if the user has already voted for this class
-      const [voteCheckResult] = await pool.query(
-        'SELECT * FROM user_votes WHERE user_id = ? AND class_id = ?',
-        [userId, classId]
-      );
-
-      //if (voteCheckResult.length > 0) {
-        // The user has already voted for this class
-      //  return res.status(400).json({ error: 'You have already voted for this class.' });
-      //}
-
-      // The user has not voted for this class, so proceed with the vote
-
-      // Perform the necessary logic to update the class statistics with the vote data
       const [result] = await pool.query('SELECT difficulty, quality, hpw, votes FROM classes WHERE id = ?', [classId]);
 
       if (result.length > 0) {
@@ -508,35 +489,34 @@ app.post('/classes/:id/vote', async (req, res) => {
         const currentHPW = result[0].hpw;
         const currentVotes = result[0].votes;
 
-        // Calculate the new statistics based on the vote data and the existing values
         const newDifficulty = (currentDifficulty * currentVotes + difficulty) / (currentVotes + 1);
         const newQuality = (currentQuality * currentVotes + quality) / (currentVotes + 1);
         const newHPW = (currentHPW * currentVotes + hpw) / (currentVotes + 1);
         const newVotes = currentVotes + 1;
 
-        // Update the class statistics in the database
         const [updateResult] = await pool.query(
           'UPDATE classes SET difficulty = ?, quality = ?, hpw = ?, votes = ? WHERE id = ?',
           [newDifficulty, newQuality, newHPW, newVotes, classId]
         );
 
         if (updateResult.affectedRows > 0) {
-          // Insert the vote into the user_votes table
           if (userId) {
-            if (userId) {
-              await pool.query('INSERT INTO user_votes(user_id, class_id, difficulty, quality, hpw) VALUES (?, ?, ?, ?, ?)', 
-              [userId, classId, difficulty, quality, hpw]);
-            }
+            await pool.query('INSERT INTO user_votes(user_id, class_id, difficulty, quality, hpw) VALUES (?, ?, ?, ?, ?)', 
+            [userId, classId, difficulty, quality, hpw]);
           }
 
-          // Class statistics updated successfully
-          return res.sendStatus(200); // Send a 200 OK response
+          const [updatedClassResult] = await pool.query('SELECT * FROM classes WHERE id = ?', [classId]);
+
+          if (updatedClassResult.length > 0) {
+            const updatedClass = updatedClassResult[0];
+            return res.json(updatedClass);
+          } else {
+            return res.status(404).json({ error: 'Class not found' });
+          }
         } else {
-          // Class not found or no rows affected
           return res.status(404).json({ error: 'Class not found' });
         }
       } else {
-        // Class not found
         return res.status(404).json({ error: 'Class not found' });
       }
     } catch (error) {
@@ -549,6 +529,7 @@ app.post('/classes/:id/vote', async (req, res) => {
   }
 });
 
+
 app.put('/classes/:id/clear-stats', async (req, res) => {
   const classId = req.params.id;
 
@@ -560,6 +541,12 @@ app.put('/classes/:id/clear-stats', async (req, res) => {
     );
 
     if (result.affectedRows > 0) {
+      // Delete the corresponding votes from the user_votes table
+      await pool.query(
+        'DELETE FROM user_votes WHERE class_id = ?',
+        [classId]
+      );
+
       // Stats cleared successfully
       res.sendStatus(200); // Send a 200 OK response
     } else {
@@ -571,6 +558,7 @@ app.put('/classes/:id/clear-stats', async (req, res) => {
     res.status(500).json({ error: 'An error occurred' });
   }
 });
+
 
 app.get('/classes/:id/details', async (req, res) => {
   const classId = req.params.id;

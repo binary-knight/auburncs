@@ -154,6 +154,25 @@ const handleVoteSubmit = (vote) => {
       });
 };
 
+const handleReviewBreakdown = async (classId) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_ROUTE}/classes/${classId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const cls = response.data;
+    if (cls.votes > 0) {
+      setBreakdownClass(cls);
+    } else {
+      toast.error('No data available for this class.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
   
   const handleClearStats = (classId) => {
     const confirmClearStats = window.confirm('Are you sure you want to clear the stats of this class?');
@@ -309,7 +328,7 @@ const handleVoteSubmit = (vote) => {
                 )}
                 <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
                 {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
-                <button onClick={() => setBreakdownClass(cls)}>Review Breakdown</button>
+                <button onClick={() => handleReviewBreakdown(cls.id)}>Review Breakdown</button>
               </div>
             </div>
           )
@@ -338,7 +357,7 @@ const handleVoteSubmit = (vote) => {
                   )}
                   <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
                   {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
-                  <button onClick={() => setBreakdownClass(cls)}>Review Breakdown</button>
+                  <button onClick={() => handleReviewBreakdown(cls.id)}>Review Breakdown</button>
                 </div>
               </div>
             )

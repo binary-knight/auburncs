@@ -46,10 +46,10 @@ const ClassList = ({ isAdmin, token }) => {
 
   const mapDifficultyToRating = (difficulty) => {
     if (difficulty === 0) return { grade: 'No Data', class: 'no-data' };
-    if (difficulty < 2) return { grade: 'Very Easy', class: 'gradeA' };
-    if (difficulty < 3) return { grade: 'Easy', class: 'gradeB' };
-    if (difficulty < 4) return { grade: 'Moderate', class: 'gradeC' };
-    if (difficulty < 5) return { grade: 'Difficult', class: 'gradeD' };
+    if (difficulty <= 1.5) return { grade: 'Very Easy', class: 'gradeA' };
+    if (difficulty <= 2.5) return { grade: 'Easy', class: 'gradeB' };
+    if (difficulty <= 3.5) return { grade: 'Moderate', class: 'gradeC' };
+    if (difficulty <= 4.5) return { grade: 'Difficult', class: 'gradeD' };
     return { grade: 'Very Difficult', class: 'gradeF' };
   }
   

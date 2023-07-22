@@ -124,27 +124,11 @@ const handleVoteSubmit = (vote) => {
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  // Map HPW to correct range
-  let hpw;
-  switch(vote.hpw) {
-    case "1-10":
-      hpw = 1;
-      break;
-    case "10-20":
-      hpw = 2;
-      break;
-    case "20-30":
-      hpw = 3;
-      break;
-    default:
-      hpw = 4;
-  }
-
   // Create the data object to send in the request
   const data = {
     difficulty: parseInt(vote.difficulty),
     quality: parseInt(vote.quality),
-    hpw: hpw,
+    hpw: parseInt(vote.hpw),  // directly assign hpw from vote
   };
   
   // Make an API call to update the class with the user's vote
@@ -168,8 +152,6 @@ const handleVoteSubmit = (vote) => {
       }
     });
 };
-
-
 
 const handleReviewBreakdown = async (classId) => {
   try {

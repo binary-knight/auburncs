@@ -46,19 +46,19 @@ const ClassList = ({ isAdmin, token }) => {
 
   const mapDifficultyToRating = (difficulty) => {
     if (difficulty === 0) return { grade: 'No Data', class: 'no-data' };
-    if (difficulty <= 1.5) return { grade: 'Very Easy', class: 'gradeA' };
-    if (difficulty <= 2.5) return { grade: 'Easy', class: 'gradeB' };
-    if (difficulty <= 3.5) return { grade: 'Moderate', class: 'gradeC' };
-    if (difficulty <= 4.5) return { grade: 'Difficult', class: 'gradeD' };
+    if (difficulty <= 1) return { grade: 'Very Easy', class: 'gradeA' };
+    if (difficulty <= 2) return { grade: 'Easy', class: 'gradeB' };
+    if (difficulty <= 3) return { grade: 'Moderate', class: 'gradeC' };
+    if (difficulty <= 4) return { grade: 'Difficult', class: 'gradeD' };
     return { grade: 'Very Difficult', class: 'gradeF' };
   }
   
   const mapQualityToRating = (quality) => {
     if (quality === 0) return { grade: 'No Data', class: 'no-data' };
-    if (quality <= 1.5) return { grade: 'Poor', class: 'gradeF' };
-    if (quality <= 2.5) return { grade: 'Fair', class: 'gradeD' };
-    if (quality <= 3.5) return { grade: 'Average', class: 'gradeC' };
-    if (quality <= 4.5) return { grade: 'Good', class: 'gradeB' };
+    if (quality <= 1) return { grade: 'Poor', class: 'gradeF' };
+    if (quality <= 2) return { grade: 'Fair', class: 'gradeD' };
+    if (quality <= 3) return { grade: 'Average', class: 'gradeC' };
+    if (quality <= 4) return { grade: 'Good', class: 'gradeB' };
     return { grade: 'Excellent', class: 'gradeA' };
   }
   

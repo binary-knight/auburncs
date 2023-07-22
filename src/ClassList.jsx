@@ -55,10 +55,10 @@ const ClassList = ({ isAdmin, token }) => {
   
   const mapQualityToRating = (quality) => {
     if (quality === 0) return { grade: 'No Data', class: 'no-data' };
-    if (quality <= 1) return { grade: 'Poor', class: 'gradeF' };
-    if (quality <= 2) return { grade: 'Fair', class: 'gradeD' };
-    if (quality <= 3) return { grade: 'Average', class: 'gradeC' };
-    if (quality <= 4) return { grade: 'Good', class: 'gradeB' };
+    if (quality <= 1.5) return { grade: 'Poor', class: 'gradeF' };
+    if (quality <= 2.5) return { grade: 'Fair', class: 'gradeD' };
+    if (quality <= 3.5) return { grade: 'Average', class: 'gradeC' };
+    if (quality <= 4.5) return { grade: 'Good', class: 'gradeB' };
     return { grade: 'Excellent', class: 'gradeA' };
   }
   

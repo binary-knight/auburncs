@@ -320,6 +320,32 @@ app.get('/classes', async (req, res) => {
   }
 });
 
+// Route for getting a single class
+app.get('/classes/:id', async (req, res) => {
+  console.log(`Received GET request for class ID ${req.params.id}`);
+
+  const classId = req.params.id;
+
+  try {
+    // Perform the necessary logic to get the class from the database
+    const [results] = await pool.query('SELECT * FROM classes WHERE id = ?', [classId]);
+
+    if (results.length > 0) {
+      // Class found, return it
+      console.log(`Class ID ${classId} found successfully`);
+      res.status(200).json(results[0]);
+    } else {
+      // Class not found
+      console.log(`No class found with ID ${classId}`);
+      res.status(404).json({ error: 'Class not found' });
+    }
+  } catch (error) {
+    console.error('Error getting class:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+
 // Route for deleting a class
 app.delete('/classes/:id', async (req, res) => {
   console.log(`Received DELETE request for class ID ${req.params.id}`);
@@ -405,6 +431,30 @@ app.post('/classes', async (req, res) => {
   }
 });
 
+// Route for fetching votes for a specific class
+app.get('/classes/:id/votes', async (req, res) => {
+  const classId = req.params.id;
+
+  try {
+    const [votes] = await pool.query(
+      'SELECT * FROM user_votes WHERE class_id = ?',
+      [classId]
+    );
+
+    if (votes.length > 0) {
+      // Send the votes as the response
+      return res.json(votes);
+    } else {
+      // No votes found for this class
+      return res.status(404).json({ error: 'No votes found for this class.' });
+    }
+  } catch (error) {
+    console.error('Error fetching votes:', error);
+    return res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+
 // Route for voting on a class
 app.post('/classes/:id/vote', async (req, res) => {
   const classId = req.params.id;
@@ -442,10 +492,10 @@ app.post('/classes/:id/vote', async (req, res) => {
         [userId, classId]
       );
 
-      if (voteCheckResult.length > 0) {
+      //if (voteCheckResult.length > 0) {
         // The user has already voted for this class
-        return res.status(400).json({ error: 'You have already voted for this class.' });
-      }
+      //  return res.status(400).json({ error: 'You have already voted for this class.' });
+      //}
 
       // The user has not voted for this class, so proceed with the vote
 
@@ -473,7 +523,10 @@ app.post('/classes/:id/vote', async (req, res) => {
         if (updateResult.affectedRows > 0) {
           // Insert the vote into the user_votes table
           if (userId) {
-            await pool.query('INSERT INTO user_votes(user_id, class_id) VALUES (?, ?)', [userId, classId]);
+            if (userId) {
+              await pool.query('INSERT INTO user_votes(user_id, class_id, difficulty, quality, hpw) VALUES (?, ?, ?, ?, ?)', 
+              [userId, classId, difficulty, quality, hpw]);
+            }
           }
 
           // Class statistics updated successfully

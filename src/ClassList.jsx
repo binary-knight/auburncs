@@ -3,6 +3,7 @@ import Modal from './Modal';
 import axios from 'axios';
 import './ClassList.css';
 import VoteModal from './VoteModal';
+import BreakdownModal from './BreakdownModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
@@ -29,6 +30,7 @@ const ClassList = ({ isAdmin, token }) => {
   const [voteModalIsOpen, setVoteModalIsOpen] = useState(false);
   const [votingClass, setVotingClass] = useState(null);
   const [searchInput, setSearchInput] = useState("");
+  const [breakdownClass, setBreakdownClass] = useState(null);
 
   useEffect(() => {
     console.log('voteModalIsOpen changed:', voteModalIsOpen);
@@ -294,25 +296,26 @@ const handleVoteSubmit = (vote) => {
               handleUpdate={handleUpdate}
               onCancel={() => setEditingClassId(null)}
             />
-         ) : (
-          <div className="class-item">
-            {renderClassStats(cls)}
-            <div className="button-container">
-              {isAdmin && (
-                <>
-                 <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
-                  <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
-                  <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
-                </>
-              )}
-              <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
-              {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
+          ) : (
+            <div className="class-item">
+              {renderClassStats(cls)}
+              <div className="button-container">
+                {isAdmin && (
+                  <>
+                    <button onClick={() => handleDeleteClass(cls.id)}>Delete Class</button>
+                    <button onClick={() => handleEdit(cls.id)}>Edit Class</button>
+                    <button onClick={() => handleClearStats(cls.id)}>Clear Stats</button>
+                  </>
+                )}
+                <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
+                {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
+                <button onClick={() => setBreakdownClass(cls)}>Review Breakdown</button>
+              </div>
             </div>
-          </div>
-        )
-      ))}
-    </div>
-  
+          )
+        ))}
+      </div>
+
         <h3><center>Electives</center></h3>
         <div className="class-items-container">
           {electiveClasses.filter(cls => cls.name.toLowerCase().startsWith(searchInput.toLowerCase())).map(cls => (
@@ -335,11 +338,21 @@ const handleVoteSubmit = (vote) => {
                   )}
                   <button onClick={() => handleViewDetails(cls.id)}>View Details</button>
                   {token && <button onClick={() => handleVote(cls.id)}>Review</button>}
+                  <button onClick={() => setBreakdownClass(cls)}>Review Breakdown</button>
                 </div>
               </div>
             )
           ))}
         </div>
+
+        {breakdownClass && (
+          <BreakdownModal 
+            isOpen={!!breakdownClass} 
+            onClose={() => setBreakdownClass(null)} 
+            classId={breakdownClass.id} 
+            token={token} 
+          />
+        )}
   
       {/* Modal component */}
       {selectedClass && (

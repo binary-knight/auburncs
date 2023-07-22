@@ -12,6 +12,7 @@ import FAQ from './faq';
 import Resources from './resources';
 import HomePage from './HomePage';
 import Grade from './Grade';
+import BreakdownModal from './BreakdownModal';
 import './App.css'
 
 function App() {
@@ -34,7 +35,6 @@ function App() {
       axios
         .get(`${process.env.REACT_APP_API_ROUTE}/user`)
         .then(response => {
-          console.log(response.data);
           setUsername(response.data.username);
           setUserId(response.data.id); // Set the userId state
         })
@@ -79,6 +79,7 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/grade" element={<Grade />} />
+          <Route path="/breakdown/:classId" element={<BreakdownModal token={localStorage.getItem('token')} />} />
         </Routes>
       </div>
       {loginModalIsOpen && (

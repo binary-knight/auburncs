@@ -476,7 +476,7 @@ app.post('/classes/:id/vote', async (req, res) => {
 
     if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
         !Number.isInteger(quality) || quality < 1 || quality > 5 ||
-        !Number.isInteger(hpw) || hpw < 1 || hpw > 40) {
+        !Number.isInteger(hpw) || hpw < 1 || hpw > 4) {
       return res.status(405).json({ error: 'Invalid voting parameters' });
     }
 
@@ -489,9 +489,9 @@ app.post('/classes/:id/vote', async (req, res) => {
         const currentHPW = result[0].hpw;
         const currentVotes = result[0].votes;
 
-        const newDifficulty = (currentDifficulty * currentVotes + difficulty) / (currentVotes + 1);
-        const newQuality = (currentQuality * currentVotes + quality) / (currentVotes + 1);
-        const newHPW = (currentHPW * currentVotes + hpw) / (currentVotes + 1);
+        const newDifficulty = Math.round((currentDifficulty * currentVotes + difficulty) / (currentVotes + 1));
+        const newQuality = Math.round((currentQuality * currentVotes + quality) / (currentVotes + 1));
+        const newHPW = Math.round((currentHPW * currentVotes + hpw) / (currentVotes + 1));
         const newVotes = currentVotes + 1;
 
         const [updateResult] = await pool.query(
@@ -528,6 +528,7 @@ app.post('/classes/:id/vote', async (req, res) => {
     return res.status(500).json({ error: 'JWT error', details: jwtError.message });
   }
 });
+
 
 
 app.put('/classes/:id/clear-stats', async (req, res) => {

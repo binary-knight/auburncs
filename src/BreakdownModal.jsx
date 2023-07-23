@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DifficultyChart, QualityChart, HPWChart } from './chart.js';
+import { DifficultyChart, QualityChart, HPWChart, GradeChart } from './chart.js';
 import './BreakdownModal.css'
 import axios from 'axios';
 
@@ -40,6 +40,10 @@ const BreakdownModal = ({ isOpen, onClose, classId, token }) => {
         <div className="chart-container">
           <h3>Hours per Week</h3>
           <HPWChart classId={classId} token={token} />
+        </div>
+        <div className="chart-container">
+          <h3>Grade Recieved</h3>
+          <GradeChart classId={classId} token={token} />
         </div>
       </div>
     </div>

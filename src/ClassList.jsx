@@ -151,6 +151,7 @@ const handleVoteSubmit = (vote) => {
     difficulty: parseInt(vote.difficulty),
     quality: parseInt(vote.quality),
     hpw: parseInt(vote.hpw),  // directly assign hpw from vote
+    grade: parseInt(vote.grade)
   };
   
   // Make an API call to update the class with the user's vote

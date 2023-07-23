@@ -5,7 +5,8 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
   const [vote, setVote] = useState({
     difficulty: '',
     quality: '',
-    hpw: ''
+    hpw: '',
+    grade: ''
   });
 
   if (!isOpen) {
@@ -15,10 +16,19 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log(`Changing ${name} to ${value}`);
-    setVote(prevVote => ({
-      ...prevVote,
-      [name]: value
-    }));
+
+    if (name === 'grade') {
+      const gradeMapping = { 'A': 5, 'B': 4, 'C': 3, 'D': 2, 'F': 1, 'DNF': 7 };
+      setVote(prevVote => ({
+        ...prevVote,
+        [name]: gradeMapping[value]
+      }));
+    } else {
+      setVote(prevVote => ({
+        ...prevVote,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -83,6 +93,28 @@ const VoteModal = ({ isOpen, votingClass, onSubmit, onClose }) => {
             </label>
             <label>
               <input type="radio" value="4" name="hpw" onChange={handleChange} required /> 30+
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Grade Recieved</legend>
+            <label>
+              <input type="radio" value="A" name="grade" onChange={handleChange} required /> A
+            </label>
+            <label>
+              <input type="radio" value="B" name="grade" onChange={handleChange} required /> B
+            </label>
+            <label>
+              <input type="radio" value="C" name="grade" onChange={handleChange} required /> C
+            </label>
+            <label>
+              <input type="radio" value="D" name="grade" onChange={handleChange} required /> D
+            </label>
+            <label>
+              <input type="radio" value="F" name="grade" onChange={handleChange} required /> F
+            </label>
+            <label>
+              <input type="radio" value="DNF" name="grade" onChange={handleChange} required /> Did Not Finish/Do Not Record
             </label>
           </fieldset>
 

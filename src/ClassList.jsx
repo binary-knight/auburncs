@@ -106,17 +106,39 @@ const ClassList = ({ isAdmin, token }) => {
     }
   };
 
-  const handleVote = (classId) => {
-    console.log('handleVote called');  // Log statement for debugging
-    // Find the class that is being voted on
-    const cls = classes.find(cls => cls.id === classId);
+  const handleVote = async (classId) => {
+    let userHasVoted = false;
   
-    // Save the class to state
-    setVotingClass(cls);
+    try {
+      // Attempt to make a GET request to the '/classes/:id/vote' endpoint
+      await axios.get(`/classes/${classId}/vote`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      // If the server responded with a status of 400, set the flag to true and display a toast error message
+      if (error.response && error.response.status === 400) {
+        userHasVoted = true;
+        toast.error('You have already voted for this class');
+      } else {
+        // Handle any other errors here
+        console.error(error);
+      }
+    }
   
-    // Open the voting modal
-    setVoteModalIsOpen(true);
-};
+    // If the user hasn't voted yet, open the modal
+    if (!userHasVoted) {
+      // Find the class that is being voted on
+      const cls = classes.find(cls => cls.id === classId);
+      
+      // Save the class to state
+      setVotingClass(cls);
+      
+      // Open the voting modal
+      setVoteModalIsOpen(true);
+    }
+  };
 
 const handleVoteSubmit = (vote) => {
   // Create the Axios configuration for the request
@@ -129,6 +151,7 @@ const handleVoteSubmit = (vote) => {
     difficulty: parseInt(vote.difficulty),
     quality: parseInt(vote.quality),
     hpw: parseInt(vote.hpw),  // directly assign hpw from vote
+    grade: parseInt(vote.grade)
   };
   
   // Make an API call to update the class with the user's vote

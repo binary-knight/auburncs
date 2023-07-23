@@ -457,13 +457,14 @@ app.get('/classes/:id/votes', async (req, res) => {
 // Route for Voting on a Class
 app.post('/classes/:id/vote', async (req, res) => {
   const classId = req.params.id;
-  let { difficulty, quality, hpw } = req.body;
+  let { difficulty, quality, hpw, grade } = req.body;
   const token = extractToken(req);
 
   // Convert difficulty, quality, and hpw to numbers
   difficulty = parseInt(difficulty);
   quality = parseInt(quality);
   hpw = parseInt(hpw);
+  grade = parseInt(grade);
 
   if (!token) {
     console.log('No token found in request');
@@ -479,9 +480,21 @@ app.post('/classes/:id/vote', async (req, res) => {
       return res.status(405).json({ error: 'Bad request' });
     }
 
+    // Check if the user has already voted for this class
+    const [voteCheckResult] = await pool.query(
+      'SELECT * FROM user_votes WHERE user_id = ? AND class_id = ?',
+      [userId, classId]
+    );
+
+    //if (voteCheckResult.length > 0) {
+      // The user has already voted for this class
+    //  return res.status(400).json({ error: 'You have already voted for this class.' });
+    //}
+
     if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5 ||
         !Number.isInteger(quality) || quality < 1 || quality > 5 ||
-        !Number.isInteger(hpw) || hpw < 1 || hpw > 4) {
+        !Number.isInteger(hpw) || hpw < 1 || hpw > 4 ||
+        !Number.isInteger(grade) || grade < 1 || grade > 7) {
       return res.status(405).json({ error: 'Invalid voting parameters' });
     }
 
@@ -506,8 +519,8 @@ app.post('/classes/:id/vote', async (req, res) => {
 
         if (updateResult.affectedRows > 0) {
           if (userId) {
-            await pool.query('INSERT INTO user_votes(user_id, class_id, difficulty, quality, hpw) VALUES (?, ?, ?, ?, ?)', 
-            [userId, classId, difficulty, quality, hpw]);
+            await pool.query('INSERT INTO user_votes(user_id, class_id, difficulty, quality, hpw, grade) VALUES (?, ?, ?, ?, ?, ?)', 
+            [userId, classId, difficulty, quality, hpw, grade]);
           }
 
           const [updatedClassResult] = await pool.query('SELECT * FROM classes WHERE id = ?', [classId]);
@@ -533,8 +546,6 @@ app.post('/classes/:id/vote', async (req, res) => {
     return res.status(500).json({ error: 'JWT error', details: jwtError.message });
   }
 });
-
-
 
 app.put('/classes/:id/clear-stats', async (req, res) => {
   const classId = req.params.id;

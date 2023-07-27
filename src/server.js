@@ -15,6 +15,7 @@ const path = require('path');
 const sslRedirect = require('express-sslify');
 const nodemailer = require('nodemailer');
 const history = require('connect-history-api-fallback');
+const rateLimit = require("express-rate-limit");
 
 // Set the AWS region
 process.env.AWS_REGION = 'us-east-1';
@@ -29,11 +30,13 @@ app.use(sslRedirect.HTTPS({ trustProtoHeader: true }));
 
 app.use(cors());
 
-//app.use(cors({
-//  origin: process.env.FULLROUTE, 
-//  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-//  allowedHeaders: ['Authorization', 'Content-Type'],
-//}));
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests, please try again later."
+});
+
+app.use(limiter)
 
 app.use(express.json()); // Parse JSON request bodies
 

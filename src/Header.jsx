@@ -30,9 +30,9 @@ const Header = ({ loggedIn, isAdmin, username, setLoggedIn, setUsername, setPass
     <>
       <div className="header-top">
         <ul>
-          <li><a href="https://www.reddit.com/r/AuburnOnlineCS/" target="_blank" rel="noopener noreferrer">Reddit</a></li>
+          <li><a href="https://www.reddit.com/r/auburn/" target="_blank" rel="noopener noreferrer">Auburn Reddit</a></li>
           <li><a href="https://discord.gg/ucX86j7jt6" target="_blank" rel="noopener noreferrer">Join Our Discord!</a></li>
-          <li><a href="https://eng.auburn.edu/csse/academics/online/online-undergraduate-program.html" target="_blank" rel="noopener noreferrer">Official AU Site</a></li>
+          <li><a href="https://www.eng.auburn.edu/" target="_blank" rel="noopener noreferrer">AU College of Engineering</a></li>
           <li><Link to="/classlist">Class Reviews & Info</Link></li>
           <li><Link to="/donate">Donate</Link></li>
           <li><Link to="/faq">FAQ</Link></li>

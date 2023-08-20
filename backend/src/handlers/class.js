@@ -9,7 +9,7 @@ const handleGetAllClasses = async (req, res) => {
 
   try {
     // Execute the MySQL query to retrieve all classes
-    const [rows, fields] = await req.dbConnection.query('SELECT * FROM classes ORDER BY name ASC');
+    const [rows, fields] = await req.dbConn.query('SELECT * FROM classes ORDER BY name ASC');
     res.json(rows);
   } catch (error) {
     console.error('Error retrieving classes:', error);

@@ -1,28 +1,61 @@
 // requirements
 // require("dotenv").config({ path: "./.env." + process.env.NODE_ENV });
 const express = require("express");
-const classRouter = require("./routers/classRouter");
+const mysqlConfig = require("./src/config/mysql");
+const awsConfig = require("./src/config/aws");
+const classRouter = require("./src/routers/classRouter");
 
-// express app
-const app = express();
+async function loadConfiguration() {
+  const dbCredentials = await awsConfig.fetchDBCredentials();
+  const jwtSecret = await awsConfig.fetchJWTSecret();
 
-// middleware
-app.use(express.json());
+  return {
+    dbCredentials,
+    jwtSecret,
+  };
+}
 
-// log the request and pass the db connection
-app.use((req, res, next) => {
-  console.log(req.path, req.method);
-  req.dbConnection = "db connnection";
-  next();
-});
+async function startServer() {
+  try {
+    const app = express();
 
-// routes
-app.get("/", (req, res) => {
-  res.json({ mssg: "Welcome to the app" });
-});
+    const config = await loadConfiguration();
 
-app.use("/classes", classRouter);
+    const connectionPool = mysqlConfig.createConnectionPool(config.dbCredentials);
 
-app.listen(3000, () => {
-  console.log("connected to db and listening on port", 3000);
-});
+    // Apply middlewares
+    app.use(express.json());
+    // app.use(errorHandler);
+
+    // Attaches db connection to local storage
+    app.locals.connectionPool = connectionPool;
+
+    // Attach routers
+    app.get("/", (req, res) => {
+      conn = req.connectionPool;
+      res.json({ mssg: "Welcome to the app, the db conn is: ", conn });
+    });
+
+    app.use("/classes", classRouter);
+
+    // Create server
+    const server = http.createrServer(app);
+
+    // Start listening
+    app.listen(3000, () => {
+      console.log("connected to db and listening on port", 3000);
+    });
+
+    // Graceful shutdown
+    process.on("SIGTERM", async () => {
+      console.log("Shutting down server gracefully...");
+      await connectionPool.close();
+      server.close(() => {
+        console.log("Server has been gracefully closed");
+        process.exit(0);
+      });
+    });
+  } catch (err) {}
+}
+
+startServer();

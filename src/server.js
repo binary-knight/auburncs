@@ -350,7 +350,7 @@ app.get('/classes/:id', async (req, res) => {
 
 
 // Route for deleting a class
-app.delete('/classes/:id', async (req, res) => {
+/* app.delete('/classes/:id', async (req, res) => {
   console.log(`Received DELETE request for class ID ${req.params.id}`);
 
   const classId = req.params.id;
@@ -372,11 +372,11 @@ app.delete('/classes/:id', async (req, res) => {
     console.error('Error deleting class:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
-});
+}); */
 
 
 // Route for updating a class
-app.put('/classes/:id', async (req, res) => {
+/* app.put('/classes/:id', async (req, res) => {
   const classId = req.params.id;
   const updatedClassData = req.body;
 
@@ -407,10 +407,10 @@ app.put('/classes/:id', async (req, res) => {
     console.error('Error updating class:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
-});
+}); */
 
 // Route for adding a new class
-app.post('/classes', async (req, res) => {
+/* app.post('/classes', async (req, res) => {
   const { name, difficulty, quality, hpw, description, syllabus } = req.body;
 
   try {    
@@ -432,7 +432,7 @@ app.post('/classes', async (req, res) => {
     console.error('Error adding class:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
-});
+}); */
 
 // Route for fetching votes for a specific class
 app.get('/classes/:id/votes', async (req, res) => {
@@ -550,7 +550,7 @@ app.post('/classes/:id/vote', async (req, res) => {
   }
 });
 
-app.put('/classes/:id/clear-stats', async (req, res) => {
+/* app.put('/classes/:id/clear-stats', async (req, res) => {
   const classId = req.params.id;
 
   try {
@@ -577,7 +577,7 @@ app.put('/classes/:id/clear-stats', async (req, res) => {
     console.error('Error clearing class stats:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
-});
+}); */
 
 
 app.get('/classes/:id/details', async (req, res) => {
@@ -660,7 +660,7 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-app.delete('/users/:id', async (req, res) => {
+/* app.delete('/users/:id', async (req, res) => {
   const userId = req.params.id;
 
   try {
@@ -681,9 +681,9 @@ app.delete('/users/:id', async (req, res) => {
     console.error('Error deleting user:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
-});
+}); */
 
-app.put('/users/:id/promote', async (req, res) => {
+/* app.put('/users/:id/promote', async (req, res) => {
   const userId = req.params.id;
 
   try {
@@ -702,7 +702,7 @@ app.put('/users/:id/promote', async (req, res) => {
     console.error('Error promoting user:', error);
     res.status(500).json({ error: 'Database error', details: error.message });
   }
-});
+}); */
 
 app.get('/user', async (req, res) => {
   const token = extractToken(req);

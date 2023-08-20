@@ -41,7 +41,7 @@ const HomePage = () => {
         <meta name="description" content="Unofficial Auburn Online Computer Science Student Portal. A platform created for students, by students, to support your academic journey and foster a vibrant community of online learners." />
         <meta name="keywords" content="Auburn, Online, Computer Science, Student Portal, Course Reviews, Resources" />
       </Helmet>
-      <h1 className="homepage-title">Welcome to the Unofficial Auburn Online Computer Science Student Portal</h1>
+      <h1 className="homepage-title">Welcome to the Unofficial Auburn Online Computer Science Student Portal (dev)</h1>
       <p className="homepage-intro">Welcome to your one-stop resource for all things related to the Auburn Online Computer Science program. This platform, created "For Students, By Students", is designed to support your academic journey and foster a vibrant community of online learners.</p>
       {welcomeSections.map((section, index) => (
         <div key={index} className="section">

@@ -6,11 +6,11 @@ const cors = require('cors');
 const morgan = require('morgan');
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
-const expressJwt = require('express-jwt');
+const { expressjwt: expressjwt } = require('express-jwt');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const app = express();
-const port = 3000;
+const port = 3001;
 const path = require('path');
 const sslRedirect = require('express-sslify');
 const nodemailer = require('nodemailer');
@@ -176,7 +176,7 @@ const extractToken = (req) => {
 };
 
 app.use(
-  expressJwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
+  expressjwt({ secret: () => secretKey, algorithms: ['HS256'], getToken: extractToken }).unless((req) => {
     const excludedPaths = ['/donate', '/login', '/register', '/classes', '/user', '/users', '/classes/:id', '/users/:id', '/verify-email', '/classes/:id/vote'];
     console.log(`Received ${req.method} request for ${req.path}`);
     if (req.method === 'OPTIONS') {
@@ -231,7 +231,7 @@ app.use(
 
 // Retrieve the parameter value from Systems Manager
 const getDatabaseCredentials = async () => {
-  const parameterName = `${process.env.REACT_APP_DB_CREDENTIALS}`;
+  const parameterName = '/auburncs/dev_database_credentials';
 
   const params = {
     Name: parameterName,

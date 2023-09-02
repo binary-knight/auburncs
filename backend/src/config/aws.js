@@ -13,7 +13,7 @@ const ssm = new aws.SSM();
 
 // Retrieve the db credentials from Systems Manager
 const fetchDBCredentials = async () => {
-  const parameterName = `${process.env.REACT_APP_DB_CREDENTIALS}`;
+  const parameterName = `/auburncs/dev_database_credentials`;
 
   const params = {
     Name: parameterName,

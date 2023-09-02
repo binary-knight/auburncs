@@ -6,10 +6,9 @@
 const jwt = require("jsonwebtoken");
 const fetchJWTSecret = require("../config/aws");
 
-const authenticateAndAuthorize = async (requiredRoles) => {
-  secretKey = await fetchJWTSecret();
-
-  return (req, res, next) => {
+const authenticateAndAuthorize = (requiredRoles) => {
+  return async (req, res, next) => {
+    secretKey = await fetchJWTSecret();
     const token =
       req.headers.authorization && req.header.authorization.split(" ")[1];
     if (!token) {

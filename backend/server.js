@@ -21,10 +21,12 @@ async function startServer() {
 
     const config = await loadConfiguration();
 
-    const connectionPool = mysqlConfig.createConnectionPool(config.dbCredentials);
+    const connectionPool = await mysqlConfig.createConnectionPool(config.dbCredentials);
 
     // Apply middlewares
     app.use(express.json());
+
+    // TODO: implement error handling middleware
     // app.use(errorHandler);
 
     // Attaches db connection to local storage

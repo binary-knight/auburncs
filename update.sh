@@ -36,12 +36,12 @@ start() {
     if [ "$1" = "prod" ]; then
         echo "Building for production..."
         update_frontend_prod
-        update_backend
+        update_backend_prod
         echo "Build complete!"
     elif [ "$1" = "dev" ]; then
         echo "Building for development..."
         update_frontend_dev
-        update_backend
+        update_backend_dev
         echo "Build complete!"
     else
         echo "Invalid argument. Please use 'prod' or 'dev'."
